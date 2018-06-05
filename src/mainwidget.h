@@ -52,7 +52,7 @@
 #define MAINWIDGET_H
 
 #include "geometryengine.h"
-
+#include "camera.h"
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QMatrix4x4>
@@ -90,8 +90,9 @@ private:
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     GeometryEngine *geometries;
-
+    Camera cam;
     QMatrix4x4 projection;
+    QMatrix4x4 view;
 
     QVector2D mousePressPosition;
     QVector3D rotationAxis;

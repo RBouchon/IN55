@@ -49,6 +49,8 @@
 ****************************************************************************/
 
 #include "mainwidget.h"
+#include "camera.h"
+#include "iostream"
 
 #include <QMouseEvent>
 
@@ -92,17 +94,30 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
             case Qt::Key_Up:
                 //Démarrer annimation saut
                 break;
+
+            case Qt::Key_Z:
+                //Bouger cam en avant
+                cam.avancer();
+                break;
+            case Qt::Key_S:
+                //Bouger cam en arriere
+                cam.reculer();
+                break;
             default:
                 break;
         }
 }
 
 void MainWidget::mouseMoveEvent(QMouseEvent *event){
+    cam.orienter(1,1);
+    view.lookAt(cam.getM_position(),cam.getM_pointcible(),cam.getAxeVertical());
+    qInfo("je bouge");
 
 }
 
 void MainWidget::mouseReleaseEvent(QMouseEvent *e)
 {
+       /*
     // Mouse release position - mouse press position
     QVector2D diff = QVector2D(e->localPos()) - mousePressPosition;
 
@@ -117,7 +132,7 @@ void MainWidget::mouseReleaseEvent(QMouseEvent *e)
     rotationAxis = (rotationAxis * angularSpeed + n * acc).normalized();
 
     // Increase angular speed
-    angularSpeed += acc;
+    angularSpeed += acc;*/
 }
 //! [0]
 
@@ -198,6 +213,8 @@ void MainWidget::resizeGL(int w, int h)
 
     // Set perspective projection
     projection.perspective(fov, aspect, zNear, zFar);
+
+
 }
 //! [5]
 
@@ -213,7 +230,7 @@ void MainWidget::paintGL()
     matrix.rotate(rotation);
 
     // Set modelview-projection matrix
-    program.setUniformValue("mvp", projection * matrix);
+    program.setUniformValue("mvp",view * projection * matrix);
 //! [6]
 
     // Draw cube geometry

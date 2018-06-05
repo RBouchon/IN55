@@ -101,3 +101,13 @@ void Camera::reculer()
     //}
 }
 
+QVector3D Camera::getM_position(){
+    return m_position;
+}
+
+QVector3D Camera::getM_pointcible(){
+    return m_pointCible;
+}
+QVector3D Camera::getAxeVertical(){
+    return m_axeVertical;
+}

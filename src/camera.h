@@ -18,6 +18,9 @@ public:
     void orienter(int xRel, int YRel);
     void avancer();
     void reculer();
+    QVector3D getM_position();
+    QVector3D getM_pointcible();
+    QVector3D getAxeVertical();
 private:
     float m_phi;
     float m_theta;
