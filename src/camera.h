@@ -16,6 +16,8 @@ public:
     Camera();
     ~Camera();
     void orienter(int xRel, int YRel);
+    void avancer();
+    void reculer();
 private:
     float m_phi;
     float m_theta;

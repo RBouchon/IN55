@@ -79,7 +79,7 @@ void Camera::orienter(int xRel, int yRel)
     m_pointCible = m_position + m_orientation;
 }
 
-void Camera::avancer(Input const &input)
+void Camera::avancer()
 {
     // Avancée de la caméra
 
@@ -90,7 +90,7 @@ void Camera::avancer(Input const &input)
     //}
 }
 
-void Camera::reculer(Input const &input)
+void Camera::reculer()
 {
     // reculement de la caméra
 
