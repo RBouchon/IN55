@@ -77,6 +77,30 @@ void MainWidget::mousePressEvent(QMouseEvent *e)
     mousePressPosition = QVector2D(e->localPos());
 }
 
+void MainWidget::keyPressEvent(QKeyEvent *event){
+    switch ( event->key() )
+        {
+            case Qt::Key_Left :
+                //Démarrer annimation gauche
+                break;
+            case Qt::Key_Right:
+                //Démarrer annimation droite
+                break;
+            case Qt::Key_Down:
+                //Démarrer annimation bas
+                break;
+            case Qt::Key_Up:
+                //Démarrer annimation saut
+                break;
+            default:
+                break;
+        }
+}
+
+void MainWidget::mouseMoveEvent(QMouseEvent *event){
+
+}
+
 void MainWidget::mouseReleaseEvent(QMouseEvent *e)
 {
     // Mouse release position - mouse press position

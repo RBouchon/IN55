@@ -13,7 +13,8 @@ SOURCES += \
     src/animatedmodel/bonetransform.cpp \
     src/animatedmodel/keyframe.cpp \
     src/animatedmodel/modelloader.cpp \
-    src/animatedmodel/vertex.cpp
+    src/animatedmodel/vertex.cpp \
+    src/camera.cpp
 
 HEADERS += \
     src/mainwidget.h \
@@ -24,7 +25,8 @@ HEADERS += \
     src/animatedmodel/bonetransform.h \
     src/animatedmodel/keyframe.h \
     src/animatedmodel/modelloader.h \
-    src/animatedmodel/vertex.h
+    src/animatedmodel/vertex.h \
+    src/camera.h
 
 RESOURCES += \
     ressources/shaders.qrc \
