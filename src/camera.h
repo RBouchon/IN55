@@ -15,7 +15,7 @@ class Camera
 public:
     Camera();
     ~Camera();
-    orienter(int xRel, int YRel);
+    void orienter(int xRel, int YRel);
 private:
     float m_phi;
     float m_theta;
