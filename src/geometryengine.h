@@ -54,20 +54,26 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
+#include <QVector>
+#include <QVector3D>
 
 class GeometryEngine : protected QOpenGLFunctions
 {
 public:
-    GeometryEngine();
+    GeometryEngine(QVector<QVector3D> vList, QVector<unsigned int> iList);
     virtual ~GeometryEngine();
 
     void drawGeometry(QOpenGLShaderProgram *program);
 
 private:
     void initGeometry();
-
     QOpenGLBuffer arrayBuf;
     QOpenGLBuffer indexBuf;
+    QVector<QVector3D> verticesList;
+    QVector<unsigned int> indicesList;
+    unsigned int nbrVertices;
+    unsigned int nbrIndices;
+
 };
 
 #endif // GEOMETRYENGINE_H

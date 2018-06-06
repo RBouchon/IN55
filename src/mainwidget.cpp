@@ -171,7 +171,50 @@ void MainWidget::initializeGL()
     glEnable(GL_CULL_FACE);
 //! [2]
 
-    geometries = new GeometryEngine;
+
+    //Import 3DModel in the scene
+    Assimp::Importer importer;
+
+    const aiScene* scene = importer.ReadFile("modeles/elvis.dae",
+    aiProcess_CalcTangentSpace |
+    aiProcess_Triangulate |
+    aiProcess_JoinIdenticalVertices |
+    aiProcess_SortByPType);
+
+    // If the import failed, report it
+    if( !scene)
+    {
+        std::cout << importer.GetErrorString() << std::endl;
+    }
+
+    //Get model informations from the scene
+    aiMesh **meshes = scene->mMeshes;
+
+    QVector<QVector3D> vertices;
+    QVector<unsigned int> facesIndices;
+
+
+    int meshID = 2;
+    float dezoom = 75;
+
+    //Get list of vertices
+    for(unsigned int i = 0; i<meshes[meshID]->mNumVertices; ++i){
+        vertices.append(QVector3D(meshes[meshID]->mVertices[i].x/dezoom,meshes[meshID]->mVertices[i].y/dezoom, meshes[meshID]->mVertices[i].z/dezoom));
+        std::cout << "vertex " << i << " = (" <<meshes[meshID]->mVertices[i].x <<", "<<meshes[meshID]->mVertices[i].y<<", "<< meshes[meshID]->mVertices[i].z << ")"  << std::endl;
+    }
+    std::cout << vertices.size() << std::endl;
+    //Get list of indices (faces with triangles primitive)
+    for(unsigned int i = 0; i<meshes[meshID]->mNumFaces; ++i){
+
+        facesIndices.append(meshes[meshID]->mFaces[i].mIndices[0]);
+        facesIndices.append(meshes[meshID]->mFaces[i].mIndices[1]);
+        facesIndices.append(meshes[meshID]->mFaces[i].mIndices[2]);
+        std::cout << "face " << i << " = (" <<meshes[meshID]->mFaces[i].mIndices[0] <<", "<<meshes[meshID]->mFaces[i].mIndices[1]<<", "<< meshes[meshID]->mFaces[i].mIndices[2] << ")"  << std::endl;
+
+    }
+
+    std::cout << facesIndices.size() << std::endl;
+    geometries = new GeometryEngine(vertices, facesIndices);
 
     // Use QBasicTimer because its faster than QTimer
     timer.start(12, this);

@@ -30,3 +30,12 @@ HEADERS += \
 
 RESOURCES += \
     ressources/shaders.qrc \
+
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/assimp/lib/x64/ -llibassimp.dll
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/assimp/lib/x64/ -llibassimp.dlld
+else:unix: LIBS += -L$$PWD/assimp/lib/x64/ -llibassimp.dll
+
+INCLUDEPATH += $$PWD/assimp/include
+DEPENDPATH += $$PWD/assimp/include

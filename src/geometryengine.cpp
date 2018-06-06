@@ -52,6 +52,8 @@
 
 #include <QVector2D>
 #include <QVector3D>
+#include <QList>
+#include <iostream>
 
 struct VertexData
 {
@@ -59,7 +61,7 @@ struct VertexData
     QVector3D color;
 };
 
-
+/*
 VertexData vertices[] = {
     {QVector3D(0.0f, 0.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
     {QVector3D(1.0f, 0.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
@@ -76,13 +78,13 @@ GLushort indices[] = {
     2,3,
     4,5
 };
-
+*/
 const int nbrIndices = 6;
 
 
 //! [0]
-GeometryEngine::GeometryEngine()
-    : indexBuf(QOpenGLBuffer::IndexBuffer)
+GeometryEngine::GeometryEngine(QVector<QVector3D> vList, QVector<unsigned int> iList)
+    : indexBuf(QOpenGLBuffer::IndexBuffer), verticesList(vList), indicesList(iList)
 {
     initializeOpenGLFunctions();
 
@@ -103,6 +105,17 @@ GeometryEngine::~GeometryEngine()
 
 void GeometryEngine::initGeometry()
 {
+    //Vertexs and Indices initialisations from QVector
+    nbrVertices = verticesList.size();
+    VertexData *vertices = new VertexData[nbrVertices];
+    for(unsigned int i = 0; i<nbrVertices; ++i){
+        vertices[i] = {verticesList[i], QVector3D(1.0f, 0.0f,0.0f)};
+    }
+
+
+    nbrIndices = indicesList.size();
+    unsigned int *indices = &indicesList[0];
+
 ////! [1]
     // Transfer vertex data to VBO 0
     arrayBuf.bind();
@@ -110,7 +123,7 @@ void GeometryEngine::initGeometry()
 
     // Transfer index data to VBO 1
     indexBuf.bind();
-    indexBuf.allocate(indices, nbrIndices * sizeof(GLushort));
+    indexBuf.allocate(indices, nbrIndices * sizeof(unsigned int));
 //! [1]
 }
 
@@ -139,6 +152,6 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program)
     program->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
 
     // Draw cube geometry using indices from VBO 1
-    glDrawElements(GL_LINES, 6, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES, nbrIndices, GL_UNSIGNED_INT, 0);
 }
 //! [2]
