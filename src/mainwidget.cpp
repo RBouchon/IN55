@@ -52,6 +52,10 @@
 #include "camera.h"
 #include "iostream"
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include <QMouseEvent>
 
 #include <math.h>
@@ -195,7 +199,7 @@ void MainWidget::initializeGL()
 
 
     int meshID = 2;
-    float dezoom = 75;
+    float dezoom = 100;
 
     //Get list of vertices
     for(unsigned int i = 0; i<meshes[meshID]->mNumVertices; ++i){
