@@ -199,7 +199,7 @@ void MainWidget::initializeGL()
 
 
     int meshID = 2;
-    float dezoom = 100;
+    float dezoom = 125;
 
     //Get list of vertices
     for(unsigned int i = 0; i<meshes[meshID]->mNumVertices; ++i){
