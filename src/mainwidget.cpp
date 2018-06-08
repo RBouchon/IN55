@@ -66,7 +66,7 @@
 #include "animatedmodel/keyframe.h"
 
 #include <QMouseEvent>
-
+#include <QFileDialog>
 #include <math.h>
 
 MainWidget::MainWidget(QWidget *parent) :
@@ -122,8 +122,10 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
 }
 
 void MainWidget::mouseMoveEvent(QMouseEvent *event){
-    cam.orienter(1,1);
+    QVector2D diff = QVector2D(event->localPos()) - mousePressPosition;
+    cam.orienter(diff.x(),diff.y());
     view.lookAt(cam.getM_position(),cam.getM_pointcible(),cam.getAxeVertical());
+    paintGL();
     qInfo("je bouge");
 
 }
@@ -189,7 +191,10 @@ void MainWidget::initializeGL()
     Assimp::Importer importer;
 
     int meshID = 0;
-    const aiScene* scene = importer.ReadFile("modeles/Character.dae",
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Open file dae"), "/Documents", tr("dae Files (*.dae)"));
+
+    const aiScene* scene = importer.ReadFile(fileName.toStdString(),
     aiProcess_CalcTangentSpace |
     aiProcess_Triangulate |
     aiProcess_JoinIdenticalVertices |
@@ -368,8 +373,9 @@ void MainWidget::paintGL()
 //! [6]
     // Calculate model view transformation
     QMatrix4x4 matrix;
-    matrix.translate(0.0, 0.0, -5.0);
+    matrix.translate(0.0, 2.0, -5.0);
     matrix.rotate(rotation);
+
 
     // Set modelview-projection matrix
     program.setUniformValue("mvp",view * projection * matrix);
