@@ -1,7 +1,7 @@
 #ifndef KEYFRAME_H
 #define KEYFRAME_H
 
-#include <QList>
+#include <QVector>
 #include "bonetransform.h"
 
 class KeyFrame
@@ -9,8 +9,8 @@ class KeyFrame
 public:
     KeyFrame();
 private:
-    float timeStamp;
-    QList<BoneTransform> boneTransforms;
+    double timeStamp;
+    QVector<BoneTransform> boneTransforms;
 
 };
 

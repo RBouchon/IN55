@@ -56,6 +56,15 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <QMatrix4x4>
+#include <QString>
+
+
+#include "animatedmodel/animatedmodel.h"
+#include "animatedmodel/vertex.h"
+#include "animatedmodel/bone.h"
+#include "animatedmodel/keyframe.h"
+
 #include <QMouseEvent>
 
 #include <math.h>
@@ -176,10 +185,11 @@ void MainWidget::initializeGL()
 //! [2]
 
 
-    //Import 3DModel in the scene
+    //Import 3DModel in the scene (should be in modelloader)
     Assimp::Importer importer;
 
-    const aiScene* scene = importer.ReadFile("modeles/elvis.dae",
+    int meshID = 0;
+    const aiScene* scene = importer.ReadFile("modeles/Character.dae",
     aiProcess_CalcTangentSpace |
     aiProcess_Triangulate |
     aiProcess_JoinIdenticalVertices |
@@ -194,31 +204,116 @@ void MainWidget::initializeGL()
     //Get model informations from the scene
     aiMesh **meshes = scene->mMeshes;
 
-    QVector<QVector3D> vertices;
-    QVector<unsigned int> facesIndices;
 
 
-    int meshID = 2;
-    float dezoom = 125;
+
+
+    float dezoom = 7;
 
     //Get list of vertices
+    QVector<Vertex*> vertices;
+    QVector<unsigned int> facesIndices;
+
     for(unsigned int i = 0; i<meshes[meshID]->mNumVertices; ++i){
-        vertices.append(QVector3D(meshes[meshID]->mVertices[i].x/dezoom,meshes[meshID]->mVertices[i].y/dezoom, meshes[meshID]->mVertices[i].z/dezoom));
-        std::cout << "vertex " << i << " = (" <<meshes[meshID]->mVertices[i].x <<", "<<meshes[meshID]->mVertices[i].y<<", "<< meshes[meshID]->mVertices[i].z << ")"  << std::endl;
+
+        //Initialize list of bones and weight for this vertex
+        QVector<Bone*> vertexBones;
+        QVector<float> weight;
+
+        Vertex* newVertex = new Vertex(QVector3D(meshes[meshID]->mVertices[i].x/dezoom,meshes[meshID]->mVertices[i].y/dezoom, meshes[meshID]->mVertices[i].z/dezoom),
+                                       QVector2D(meshes[meshID]->mTextureCoords[0][i].x,meshes[meshID]->mTextureCoords[0][i].y),
+                                       QVector3D(meshes[meshID]->mNormals[i].x, meshes[meshID]->mNormals[i].y, meshes[meshID]->mNormals[i].z),
+                                       vertexBones, weight);
+        vertices.append(newVertex);
+
+
+
     }
-    std::cout << vertices.size() << std::endl;
+
+
+
+    //Create list of bones
+    QVector<Bone*> bones;
+
+    for(unsigned int j = 0; j<meshes[meshID]->mNumBones; ++j){ //for each bone, create a list of boneschilds
+
+        QVector<QString> bonesChilds;
+        for(unsigned int k = 0; k<scene->mRootNode->FindNode(meshes[meshID]->mBones[j]->mName)->mNumChildren; ++k){ //Get the name of each childrens
+            bonesChilds.append(QString(scene->mRootNode->FindNode(meshes[meshID]->mBones[j]->mName)->mChildren[k]->mName.data));
+
+        }
+        aiMatrix4x4 offsetMatrix = meshes[meshID]->mBones[j]->mOffsetMatrix;
+        aiMatrix4x4 transformMatrix = scene->mRootNode->FindNode(meshes[meshID]->mBones[j]->mName)->mTransformation;
+
+        Bone* newBone = new Bone(QString(meshes[meshID]->mBones[j]->mName.data), bonesChilds,
+                                 QMatrix4x4(transformMatrix.a1, transformMatrix.a2, transformMatrix.a3, transformMatrix.a4,
+                                            transformMatrix.b1, transformMatrix.b2, transformMatrix.b3, transformMatrix.b4,
+                                            transformMatrix.c1, transformMatrix.c2, transformMatrix.c3, transformMatrix.c4,
+                                            transformMatrix.d1, transformMatrix.d2, transformMatrix.d3, transformMatrix.d4),
+                                 QMatrix4x4(offsetMatrix.a1, offsetMatrix.a2, offsetMatrix.a3, offsetMatrix.a4,
+                                            offsetMatrix.b1, offsetMatrix.b2, offsetMatrix.b3, offsetMatrix.b4,
+                                            offsetMatrix.c1, offsetMatrix.c2, offsetMatrix.c3, offsetMatrix.c4,
+                                            offsetMatrix.d1, offsetMatrix.d2, offsetMatrix.d3, offsetMatrix.d4));
+        bones.append(newBone);
+
+
+        //Set the bones and weights on each vertices affected by this bone
+        for(unsigned int k = 0; k<meshes[meshID]->mBones[j]->mNumWeights; ++k){
+            vertices[meshes[meshID]->mBones[j]->mWeights[k].mVertexId]->getBones().append(newBone);
+            vertices[meshes[meshID]->mBones[j]->mWeights[k].mVertexId]->getBonesWeight().append(meshes[meshID]->mBones[j]->mWeights[k].mWeight);
+        }
+    }
+
+
+
+
     //Get list of indices (faces with triangles primitive)
     for(unsigned int i = 0; i<meshes[meshID]->mNumFaces; ++i){
 
         facesIndices.append(meshes[meshID]->mFaces[i].mIndices[0]);
         facesIndices.append(meshes[meshID]->mFaces[i].mIndices[1]);
         facesIndices.append(meshes[meshID]->mFaces[i].mIndices[2]);
-        std::cout << "face " << i << " = (" <<meshes[meshID]->mFaces[i].mIndices[0] <<", "<<meshes[meshID]->mFaces[i].mIndices[1]<<", "<< meshes[meshID]->mFaces[i].mIndices[2] << ")"  << std::endl;
 
     }
 
-    std::cout << facesIndices.size() << std::endl;
-    geometries = new GeometryEngine(vertices, facesIndices);
+
+    // Get texture filename
+    QString textureFileName;
+    aiString Path;
+    if(scene->mMaterials[0]->GetTexture(aiTextureType_DIFFUSE, 0, &Path, NULL, NULL, NULL, NULL, NULL)== AI_SUCCESS){
+        textureFileName = QString(Path.data);
+    }else{
+        std::cout << "Erreur lors de la récupération du nom du fichier de texture" << std::endl;
+    }
+
+
+    //Get Animations list
+    QVector<Animation> animations;
+    for(unsigned int i = 0; i<scene->mNumAnimations; ++i){ // For each animation
+        for(unsigned int j = 0; j <scene->mAnimations[i]->mNumChannels; ++j){ // For each bones transformation of the animation, get the transformations
+            Bone* transformedBone;
+            for(int k = 0; k<bones.size(); ++k){ // Get the bone from the list of bones
+                if(bones[k]->getName() == QString(scene->mAnimations[i]->mChannels[j]->mNodeName.data)){
+                    transformedBone = bones[k];
+                }
+            }
+
+            QVector<QVector3D> positionTransformationList;
+            QVector<QQuaternion> rotationTransformationList;
+            QVector<QVector3D> scalingTransformationList;
+
+
+
+
+            for(unsigned int k = 0; k <scene->mAnimations[i]->mChannels[i]->mNumPositionKeys; ++k){ //Get the position transformations of this bone
+              std::cout<<scene->mAnimations[i]->mChannels[i]->mPositionKeys[k].mTime<<std::endl;
+            }
+
+        }
+
+    }
+
+    geometries = new GeometryEngine(AnimatedModel(vertices, facesIndices, textureFileName, bones, animations));
 
     // Use QBasicTimer because its faster than QTimer
     timer.start(12, this);

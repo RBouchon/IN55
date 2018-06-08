@@ -3,20 +3,25 @@
 
 #include <QVector3D>
 #include <QVector2D>
+#include <QVector>
 #include "bone.h"
 
 
 class Vertex
 {
 public:
-    Vertex();
-
+    Vertex(QVector3D vertexPosition, QVector2D textureCoordinate, QVector3D vertexNormal, QVector<Bone*> bonesList, QVector<float> bonesWeightList);
+    ~Vertex();
+    QVector3D getPosition();
+    QVector2D getTextureCoords();
+    QVector<Bone*> getBones();
+    QVector<float> getBonesWeight();
 private:
     QVector3D position;
     QVector2D textureCoords;
     QVector3D normal;
-    QList<Bone> bonesList;
-    QList<float> bonesWeight;
+    QVector<Bone*> bones;
+    QVector<float> bonesWeight;
 
 };
 

@@ -52,13 +52,14 @@
 
 #include <QVector2D>
 #include <QVector3D>
-#include <QList>
+#include <QVector>
 #include <iostream>
 
 struct VertexData
 {
-    QVector3D position;
+    QVector3D vertexPosition;
     QVector3D color;
+    //QVector2D texCoord;
 };
 
 /*
@@ -78,13 +79,13 @@ GLushort indices[] = {
     2,3,
     4,5
 };
-*/
-const int nbrIndices = 6;
 
+const int nbrIndices = 6;
+*/
 
 //! [0]
-GeometryEngine::GeometryEngine(QVector<QVector3D> vList, QVector<unsigned int> iList)
-    : indexBuf(QOpenGLBuffer::IndexBuffer), verticesList(vList), indicesList(iList)
+GeometryEngine::GeometryEngine(AnimatedModel animatedModel)
+    : indexBuf(QOpenGLBuffer::IndexBuffer), model(animatedModel)
 {
     initializeOpenGLFunctions();
 
@@ -105,16 +106,20 @@ GeometryEngine::~GeometryEngine()
 
 void GeometryEngine::initGeometry()
 {
+
     //Vertexs and Indices initialisations from QVector
-    nbrVertices = verticesList.size();
+    nbrVertices = model.getVertices().size();
     VertexData *vertices = new VertexData[nbrVertices];
     for(unsigned int i = 0; i<nbrVertices; ++i){
-        vertices[i] = {verticesList[i], QVector3D(1.0f, 0.0f,0.0f)};
+        vertices[i] = {model.getVertices()[i]->getPosition(), QVector3D(1.0f, 0.0f,0.0f) /*model.getVertices()[i].getTextureCoords()*/};
+
     }
 
 
-    nbrIndices = indicesList.size();
+    nbrIndices = model.getIndices().size();
+    QVector<unsigned int> indicesList = model.getIndices();
     unsigned int *indices = &indicesList[0];
+
 
 ////! [1]
     // Transfer vertex data to VBO 0
@@ -123,13 +128,17 @@ void GeometryEngine::initGeometry()
 
     // Transfer index data to VBO 1
     indexBuf.bind();
+
     indexBuf.allocate(indices, nbrIndices * sizeof(unsigned int));
+
 //! [1]
+
 }
 
 //! [2]
 void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program)
 {
+
     // Tell OpenGL which VBOs to use
     arrayBuf.bind();
     indexBuf.bind();
@@ -139,17 +148,22 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program)
     quintptr offset = 0;
 
     // Tell OpenGL programmable pipeline how to locate vertex position data
-    int vertexLocation = program->attributeLocation("position");
+    int vertexLocation = program->attributeLocation("vertexPosition");
     program->enableAttributeArray(vertexLocation);
     program->setAttributeBuffer(vertexLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
 
     // Offset for texture coordinate
     offset += sizeof(QVector3D);
-
+/*
     // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
-    int colorLocation = program->attributeLocation("color");
-    program->enableAttributeArray(colorLocation);
-    program->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
+    int texLocation = program->attributeLocation("texCoord");
+    program->enableAttributeArray(texLocation);
+    program->setAttributeBuffer(texLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
+*/
+    //Color : should be removed when texture will be added
+    int color = program->attributeLocation("color");
+    program->enableAttributeArray(color);
+    program->setAttributeBuffer(color, GL_FLOAT, offset, 3, sizeof(VertexData));
 
     // Draw cube geometry using indices from VBO 1
     glDrawElements(GL_TRIANGLES, nbrIndices, GL_UNSIGNED_INT, 0);

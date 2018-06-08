@@ -54,13 +54,12 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
-#include <QVector>
-#include <QVector3D>
+#include "animatedmodel/animatedmodel.h"
 
 class GeometryEngine : protected QOpenGLFunctions
 {
 public:
-    GeometryEngine(QVector<QVector3D> vList, QVector<unsigned int> iList);
+    GeometryEngine(AnimatedModel animatedModel);
     virtual ~GeometryEngine();
 
     void drawGeometry(QOpenGLShaderProgram *program);
@@ -69,8 +68,7 @@ private:
     void initGeometry();
     QOpenGLBuffer arrayBuf;
     QOpenGLBuffer indexBuf;
-    QVector<QVector3D> verticesList;
-    QVector<unsigned int> indicesList;
+    AnimatedModel model;
     unsigned int nbrVertices;
     unsigned int nbrIndices;
 

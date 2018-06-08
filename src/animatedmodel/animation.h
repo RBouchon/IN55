@@ -2,14 +2,19 @@
 #define ANIMATION_H
 
 #include "keyframe.h"
-#include <QList>
+#include <QVector>
+#include <QString>
 
 class Animation
 {
 public:
-    Animation();
+    Animation(QString animationName, double frameNumber, double framePerSecond);
+    ~Animation();
 private:
-    QList<KeyFrame> keyframes;
+    QString name;
+    double frameNum;
+    double FPS;
+    QVector<KeyFrame> keyframes;
 };
 
 #endif // ANIMATION_H
