@@ -8,13 +8,17 @@
 class Animation
 {
 public:
-    Animation(QString animationName, double frameNumber, double framePerSecond);
+    Animation(QString animationName, double frameNumber, double framePerSecond, QVector<KeyFrame*> keyFramesList);
     ~Animation();
+    QString getName();
+    double getFrameNumber();
+    double getFramePerSecond();
+    QVector<KeyFrame*> getKeyFramesList();
 private:
     QString name;
     double frameNum;
     double FPS;
-    QVector<KeyFrame> keyframes;
+    QVector<KeyFrame*> keyFrames;
 };
 
 #endif // ANIMATION_H

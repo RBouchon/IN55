@@ -23,7 +23,7 @@ private:
     QVector<Vertex*> vertices;
     QVector<unsigned int> indices;
     QVector<Bone*> bones;
-    QVector<Animation> animations;
+    QVector<Animation*> animations;
 
 };
 

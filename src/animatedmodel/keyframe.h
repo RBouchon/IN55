@@ -7,10 +7,11 @@
 class KeyFrame
 {
 public:
-    KeyFrame();
+    KeyFrame(double time, QVector<BoneTransform*> transforms);
+    ~KeyFrame();
 private:
     double timeStamp;
-    QVector<BoneTransform> boneTransforms;
+    QVector<BoneTransform*> boneTransforms;
 
 };
 

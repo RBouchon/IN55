@@ -5,13 +5,19 @@
 #include <QQuaternion>
 #include "bone.h"
 
+
 class BoneTransform
 {
+
+    friend class AnimatedModel;
+
 public:
-    BoneTransform(Bone transformedBone, QVector3D positionTransform, QQuaternion rotationTransform, QVector3D scalingTransform);
+    BoneTransform(Bone* transformedBone);
     ~BoneTransform();
+
+
 private:
-    Bone bone;
+    Bone* bone;
     QVector3D position; //Position transformation (translation)
     QQuaternion rotation;
     QVector3D scaling;
