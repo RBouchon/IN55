@@ -12,7 +12,6 @@ SOURCES += \
     src/animatedmodel/bone.cpp \
     src/animatedmodel/bonetransform.cpp \
     src/animatedmodel/keyframe.cpp \
-    src/animatedmodel/modelloader.cpp \
     src/animatedmodel/vertex.cpp \
     src/camera.cpp
 
@@ -24,7 +23,6 @@ HEADERS += \
     src/animatedmodel/bone.h \
     src/animatedmodel/bonetransform.h \
     src/animatedmodel/keyframe.h \
-    src/animatedmodel/modelloader.h \
     src/animatedmodel/vertex.h \
     src/camera.h
 

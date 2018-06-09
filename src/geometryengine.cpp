@@ -58,30 +58,9 @@
 struct VertexData
 {
     QVector3D vertexPosition;
-    QVector3D color;
-    //QVector2D texCoord;
+    QVector2D texCoord;
 };
 
-/*
-VertexData vertices[] = {
-    {QVector3D(0.0f, 0.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
-    {QVector3D(1.0f, 0.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
-    {QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f,0.0f)},
-    {QVector3D(0.0f, 1.0f, 0.0f), QVector3D(0.0f, 1.0f,0.0f)},
-    {QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 0.0f,1.0f)},
-    {QVector3D(0.0f, 0.0f, 1.0f), QVector3D(0.0f, 0.0f,1.0f)},
-};
-
-const int nbrVertices = 6;
-
-GLushort indices[] = {
-    0,1,
-    2,3,
-    4,5
-};
-
-const int nbrIndices = 6;
-*/
 
 //! [0]
 GeometryEngine::GeometryEngine(AnimatedModel animatedModel)
@@ -109,9 +88,10 @@ void GeometryEngine::initGeometry()
 
     //Vertexs and Indices initialisations from QVector
     nbrVertices = model.getVertices().size();
+
     VertexData *vertices = new VertexData[nbrVertices];
     for(unsigned int i = 0; i<nbrVertices; ++i){
-        vertices[i] = {model.getVertices()[i]->getPosition(), QVector3D(1.0f, 0.0f,0.0f) /*model.getVertices()[i].getTextureCoords()*/};
+        vertices[i] = {model.getVertices()[i]->getPosition(), model.getVertices()[i]->getTextureCoords().};
 
     }
 
@@ -119,6 +99,8 @@ void GeometryEngine::initGeometry()
     nbrIndices = model.getIndices().size();
     QVector<unsigned int> indicesList = model.getIndices();
     unsigned int *indices = &indicesList[0];
+
+
 
 
 ////! [1]
@@ -139,6 +121,7 @@ void GeometryEngine::initGeometry()
 void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program)
 {
 
+
     // Tell OpenGL which VBOs to use
     arrayBuf.bind();
     indexBuf.bind();
@@ -154,16 +137,12 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program)
 
     // Offset for texture coordinate
     offset += sizeof(QVector3D);
-/*
+
     // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
     int texLocation = program->attributeLocation("texCoord");
     program->enableAttributeArray(texLocation);
     program->setAttributeBuffer(texLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
-*/
-    //Color : should be removed when texture will be added
-    int color = program->attributeLocation("color");
-    program->enableAttributeArray(color);
-    program->setAttributeBuffer(color, GL_FLOAT, offset, 3, sizeof(VertexData));
+
 
     // Draw cube geometry using indices from VBO 1
     glDrawElements(GL_TRIANGLES, nbrIndices, GL_UNSIGNED_INT, 0);

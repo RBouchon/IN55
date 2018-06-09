@@ -51,6 +51,7 @@
 #ifndef MAINWIDGET_H
 #define MAINWIDGET_H
 
+
 #include "geometryengine.h"
 #include "camera.h"
 #include <QOpenGLWidget>
@@ -84,12 +85,13 @@ protected:
     void paintGL() override;
 
     void initShaders();
-    void initTextures();
+    void initTextures(QString textureFileName);
 
 private:
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     GeometryEngine *geometries;
+    QOpenGLTexture *texture;
     Camera cam;
     QMatrix4x4 projection;
     QMatrix4x4 view;
