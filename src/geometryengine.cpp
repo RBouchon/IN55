@@ -91,7 +91,7 @@ void GeometryEngine::initGeometry()
 
     VertexData *vertices = new VertexData[nbrVertices];
     for(unsigned int i = 0; i<nbrVertices; ++i){
-        vertices[i] = {model.getVertices()[i]->getPosition(), model.getVertices()[i]->getTextureCoords().};
+        vertices[i] = {model.getVertices()[i]->getPosition(), model.getVertices()[i]->getTextureCoords()};
 
     }
 
