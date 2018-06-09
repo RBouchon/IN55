@@ -122,17 +122,18 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
 }
 
 void MainWidget::mouseMoveEvent(QMouseEvent *event){
+    /*
     QVector2D diff = QVector2D(event->localPos()) - mousePressPosition;
     cam.orienter(diff.x(),diff.y());
     view.lookAt(cam.getM_position(),cam.getM_pointcible(),cam.getAxeVertical());
     paintGL();
-    qInfo("je bouge");
+    qInfo("je bouge");*/
 
 }
 
 void MainWidget::mouseReleaseEvent(QMouseEvent *e)
 {
-       /*
+
     // Mouse release position - mouse press position
     QVector2D diff = QVector2D(e->localPos()) - mousePressPosition;
 
@@ -145,9 +146,9 @@ void MainWidget::mouseReleaseEvent(QMouseEvent *e)
 
     // Calculate new rotation axis as weighted sum
     rotationAxis = (rotationAxis * angularSpeed + n * acc).normalized();
-
+    rotationAxis = QVector3D(0,1,0);
     // Increase angular speed
-    angularSpeed += acc;*/
+    angularSpeed += acc;
 }
 //! [0]
 
@@ -192,7 +193,7 @@ void MainWidget::initializeGL()
 
     int meshID = 0;
     QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Open file dae"), "/Documents", tr("dae Files (*.dae)"));
+        tr("Open file dae"), "", tr("dae Files (*.dae)"));
 
     const aiScene* scene = importer.ReadFile(fileName.toStdString(),
     aiProcess_CalcTangentSpace |
@@ -213,7 +214,7 @@ void MainWidget::initializeGL()
 
 
 
-    float dezoom = 7;
+    float dezoom = 6;
 
     //Get list of vertices
     QVector<Vertex*> vertices;
@@ -353,14 +354,14 @@ void MainWidget::resizeGL(int w, int h)
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
     // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-    const qreal zNear = 3.0, zFar = 7.0, fov = 45.0;
+    const qreal zNear = 3.0, zFar = 50.0, fov = 45.0;
 
     // Reset projection
     projection.setToIdentity();
 
     // Set perspective projection
     projection.perspective(fov, aspect, zNear, zFar);
-
+    view.lookAt(QVector3D(0.0,0.0,-4.0),QVector3D(0.0,0.0,-10.0),QVector3D(0.0,1.0,0.0));
 
 }
 //! [5]
@@ -373,12 +374,12 @@ void MainWidget::paintGL()
 //! [6]
     // Calculate model view transformation
     QMatrix4x4 matrix;
-    matrix.translate(0.0, 2.0, -5.0);
+    matrix.translate(0.0, 0.0, -10.0);
     matrix.rotate(rotation);
-
+    //view.rotate((rotation));
 
     // Set modelview-projection matrix
-    program.setUniformValue("mvp",view * projection * matrix);
+    program.setUniformValue("mvp",view *projection * matrix);
 //! [6]
 
     // Draw cube geometry
