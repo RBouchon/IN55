@@ -49,6 +49,7 @@
 ****************************************************************************/
 
 #include "geometryengine.h"
+#include "animatedmodel/vertex.h"
 
 #include <QVector2D>
 #include <QVector3D>
@@ -89,9 +90,12 @@ void GeometryEngine::initGeometry()
     //Vertexs and Indices initialisations from QVector
     nbrVertices = model.getVertices().size();
 
+
     VertexData *vertices = new VertexData[nbrVertices];
+    QVector<Vertex*> modelVertices = model.getVertices();
+
     for(unsigned int i = 0; i<nbrVertices; ++i){
-        vertices[i] = {model.getVertices()[i]->getPosition(), model.getVertices()[i]->getTextureCoords()};
+        vertices[i] = {modelVertices[i]->getPosition(), modelVertices[i]->getTextureCoords()};
 
     }
 
