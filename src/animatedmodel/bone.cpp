@@ -14,3 +14,4 @@ Bone::~Bone()
 QString Bone::getName(){
     return name;
 }
+

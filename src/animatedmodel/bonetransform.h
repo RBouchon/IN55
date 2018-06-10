@@ -14,8 +14,10 @@ class BoneTransform
 public:
     BoneTransform(Bone* transformedBone);
     ~BoneTransform();
-
-
+    Bone* getBone();
+    QVector3D getPosition();
+    QQuaternion getRotation();
+    QVector3D getScaling();
 private:
     Bone* bone;
     QVector3D position; //Position transformation (translation)

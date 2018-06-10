@@ -12,6 +12,7 @@
 #include <QFileInfo>
 #include <QSet>
 #include <QList>
+#include <algorithm>
 
 #include "vertex.h"
 #include "bone.h"
@@ -174,10 +175,10 @@ void AnimatedModel::loadModelFromFile(QString fileName){
             //For each bones
             for(unsigned int k = 0; k<scene->mAnimations[i]->mNumChannels; ++k){
                 Bone* transformedBone = NULL;
-                for(int m = 0;m<bones.size(); ++m){ // Get the bone from the list of bones
-                    if(bones[m]->getName() == QString(scene->mAnimations[i]->mChannels[k]->mNodeName.data)){
-                        transformedBone = bones[m];
-                    }
+                for(int m = 0;m<bonesList.size(); ++m){ // Get the bone from the list of bones
+                    if(bonesList[m]->getName() == QString(scene->mAnimations[i]->mChannels[k]->mNodeName.data)){
+                        transformedBone = bonesList[m];
+                        std::cout<< "ok"<< std::endl;                    }
                 }
 
                 if(transformedBone != NULL){
@@ -208,12 +209,17 @@ void AnimatedModel::loadModelFromFile(QString fileName){
                         }
                     }
                     bonesTransforms.append(bt);
+
                 }
             }
 
             keyFramesList.append(new KeyFrame(timeStampList[j], bonesTransforms));
 
         }
+        std::sort(keyFramesList.begin(), keyFramesList.end(), []( KeyFrame* a,  KeyFrame* b){
+            return a->getTimeStamp()<b->getTimeStamp();
+        });
+
         animationsList.append(new Animation(QString (scene->mAnimations[i]->mName.data), scene->mAnimations[i]->mDuration, scene->mAnimations[i]->mTicksPerSecond, keyFramesList));
 
     }
@@ -225,6 +231,25 @@ void AnimatedModel::loadModelFromFile(QString fileName){
     bones = bonesList;
     textureFileName = textureName;
     animations = animationsList;
+
+    std::cout<< "Nombre de frame : " << animationsList[0]->getFrameNumber()<< std::endl;
+    std::cout<< "Nombre de frame par seconde : " << animationsList[0]->getFramePerSecond()<< std::endl;
+    std::cout<< "Nombre de keyFrame : " << animationsList[0]->getKeyFramesList().size()<< std::endl;
+    for(int i =0 ; i< animationsList[0]->getKeyFramesList().size(); ++i){
+         std::cout<< "KeyFrame n° " << i << std::endl << animationsList[0]->getKeyFramesList()[i]->getTimeStamp() << std::endl;
+         std::cout<<"Nombre de bonetransform :" << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms().size() <<std::endl;
+         for(int j=0; j<animationsList[0]->getKeyFramesList()[i]->getBoneTransforms().size();++j){
+             std::cout<< "BoneTransform n° " << j << std::endl << "os : " << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getBone()->getName().toStdString() << std::endl <<
+                         "position : (" << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getPosition().x()<<
+                         " ; "<< animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getPosition().y()<<" ; "<<
+                         animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getPosition().z()<<") "<<std::endl <<
+                         "rotation : (" << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getRotation().scalar()<<
+                         " ; " << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getRotation().x()<<
+                         " ; " << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getRotation().y()<<
+                         " ; " << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getRotation().z()
+                      <<std::endl;
+         }
+    }
 
 }
 

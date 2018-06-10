@@ -9,3 +9,12 @@ KeyFrame::KeyFrame(double time, QVector<BoneTransform *> transforms)
 KeyFrame::~KeyFrame(){
 
 }
+
+double KeyFrame::getTimeStamp() {
+    return timeStamp;
+}
+
+QVector<BoneTransform*> KeyFrame::getBoneTransforms(){
+    return boneTransforms;
+}
+

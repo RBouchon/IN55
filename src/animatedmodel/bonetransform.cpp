@@ -12,3 +12,18 @@ BoneTransform::BoneTransform(Bone *transformedBone)
 BoneTransform::~BoneTransform(){
 
 }
+
+Bone* BoneTransform::getBone(){
+    return bone;
+}
+
+QVector3D BoneTransform::getPosition(){
+    return position;
+}
+
+QQuaternion BoneTransform::getRotation(){
+    return rotation;
+}
+QVector3D BoneTransform::getScaling(){
+    return scaling;
+}

@@ -9,6 +9,9 @@ class KeyFrame
 public:
     KeyFrame(double time, QVector<BoneTransform*> transforms);
     ~KeyFrame();
+    double getTimeStamp();
+    QVector<BoneTransform*> getBoneTransforms();
+
 private:
     double timeStamp;
     QVector<BoneTransform*> boneTransforms;
