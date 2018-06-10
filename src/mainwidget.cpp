@@ -117,7 +117,21 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
         }
 }
 
+void MainWidget::wheelEvent(QWheelEvent *event){
+       QPoint numPixels = event->angleDelta()/30;
+       qInfo("molette");
+       if (!numPixels.isNull()) {
+           qInfo("molette IN");
+
+           camPosition.setZ(camPosition.z()+numPixels.y());
+           qDebug() << numPixels;
+           qDebug() << camPosition;
+           update();
+       }
+}
+
 void MainWidget::mouseMoveEvent(QMouseEvent *event){
+
     /*
     QVector2D diff = QVector2D(event->localPos()) - mousePressPosition;
     cam.orienter(diff.x(),diff.y());
@@ -129,7 +143,7 @@ void MainWidget::mouseMoveEvent(QMouseEvent *event){
 
 void MainWidget::mouseReleaseEvent(QMouseEvent *e)
 {
-
+    qInfo("rota");
     // Mouse release position - mouse press position
     QVector2D diff = QVector2D(e->localPos()) - mousePressPosition;
 
@@ -183,7 +197,9 @@ void MainWidget::initializeGL()
     glEnable(GL_CULL_FACE);
 //! [2]
 
-
+    camPosition = QVector3D(0.0,0.0,-40);
+    camTarget = QVector3D(0.0,0.0,-15);
+    upVector = QVector3D(0.0,1.0,0.0);
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open file dae"), "./", tr("dae Files (*.dae)"));
 
@@ -241,7 +257,8 @@ void MainWidget::resizeGL(int w, int h)
 
     // Set perspective projection
     projection.perspective(fov, aspect, zNear, zFar);
-    view.lookAt(QVector3D(0.0,0.0,-4.0),QVector3D(0.0,0.0,-10.0),QVector3D(0.0,1.0,0.0));
+
+
 
 }
 //! [5]
@@ -253,16 +270,17 @@ void MainWidget::paintGL()
 
 
     texture->bind();
-
+    view.setToIdentity();
+    view.lookAt(camPosition,camTarget,upVector);
 //! [6]
     // Calculate model view transformation
     QMatrix4x4 matrix;
-    matrix.translate(0.0, 0.0, -10.0);
+    matrix.translate(0.0, 0.0, -15.0);
     matrix.rotate(rotation);
     //view.rotate((rotation));
 
     // Set modelview-projection matrix
-    program.setUniformValue("mvp",projection * matrix);
+    program.setUniformValue("mvp",  projection* view * matrix);
 
     program.setUniformValue("texture", 0);
 //! [6]

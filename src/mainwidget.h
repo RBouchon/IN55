@@ -79,7 +79,7 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void timerEvent(QTimerEvent *e) override;
-
+    void wheelEvent(QWheelEvent *event) override;
     void initializeGL() override;
     void resizeGL(int w, int h) override;
     void paintGL() override;
@@ -95,7 +95,9 @@ private:
     Camera cam;
     QMatrix4x4 projection;
     QMatrix4x4 view;
-
+    QVector3D camPosition;
+    QVector3D camTarget;
+    QVector3D upVector;
     QVector2D mousePressPosition;
     QVector3D rotationAxis;
     qreal angularSpeed;
