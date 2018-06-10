@@ -60,6 +60,8 @@ struct VertexData
 {
     QVector3D vertexPosition;
     QVector2D texCoord;
+    GLuint *bonesIndex;  // Index of the bones
+    GLfloat *weight;  // Weight of the bones
 };
 
 
@@ -95,14 +97,30 @@ void GeometryEngine::initGeometry()
     QVector<Vertex*> modelVertices = model.getVertices();
 
     for(unsigned int i = 0; i<nbrVertices; ++i){
-        vertices[i] = {modelVertices[i]->getPosition(), modelVertices[i]->getTextureCoords()};
 
+        // Get the index for each bones influencing the vertex
+        GLuint bonesIndex[4] = {0};
+        GLfloat weight[4] = {0};
+        for(int j = 0; j<modelVertices[i]->getBones().size(); ++j ){
+            for(int k = 0; k<model.getBones().size(); ++k){
+                if(modelVertices[i]->getBones()[j]->getName() == model.getBones()[k]->getName() ){
+                    bonesIndex[j] = k;
+                }
+            }
+            weight[j] = modelVertices[i]->getBonesWeight()[j];
+
+        }
+
+        GLuint bonesSize = modelVertices[i]->getBones().size();
+        vertices[i] = {modelVertices[i]->getPosition(), modelVertices[i]->getTextureCoords(), bonesIndex, weight };
     }
 
 
     nbrIndices = model.getIndices().size();
     QVector<unsigned int> indicesList = model.getIndices();
     unsigned int *indices = &indicesList[0];
+
+
 
 
 
@@ -114,7 +132,6 @@ void GeometryEngine::initGeometry()
 
     // Transfer index data to VBO 1
     indexBuf.bind();
-
     indexBuf.allocate(indices, nbrIndices * sizeof(unsigned int));
 
 //! [1]
@@ -147,6 +164,21 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program)
     program->enableAttributeArray(texLocation);
     program->setAttributeBuffer(texLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
 
+    // Offset for bonesIndex
+    offset += sizeof(QVector2D);
+
+    // Tell OpenGL programmable pipeline how to locate bonesIndex data
+    int bonesInd = program->attributeLocation("bonesIndex");
+    program->enableAttributeArray(bonesInd);
+    program->setAttributeBuffer(bonesInd, GL_UNSIGNED_INT, offset, 3, sizeof(VertexData));
+
+    // Offset for weight
+    offset += sizeof(GLuint)*4;
+
+    // Tell OpenGL programmable pipeline how to locate weight data
+    int weightInd = program->attributeLocation("weight");
+    program->enableAttributeArray(weightInd);
+    program->setAttributeBuffer(weightInd, GL_FLOAT, offset, 3, sizeof(VertexData));
 
     // Draw cube geometry using indices from VBO 1
     glDrawElements(GL_TRIANGLES, nbrIndices, GL_UNSIGNED_INT, 0);

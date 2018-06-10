@@ -151,6 +151,8 @@ void MainWidget::mouseReleaseEvent(QMouseEvent *e)
 //! [1]
 void MainWidget::timerEvent(QTimerEvent *)
 {
+
+
     // Decrease angular speed (friction)
     angularSpeed *= 0.99;
 
@@ -191,10 +193,13 @@ void MainWidget::initializeGL()
 
     initTextures(model.getTextureFileName());
 
+    initBonesTransforms(model.getTransformationsAtTime(0));
+
     geometries = new GeometryEngine(model);
 
     // Use QBasicTimer because its faster than QTimer
     timer.start(12, this);
+
 }
 
 //! [3]
@@ -225,6 +230,12 @@ void MainWidget::initTextures(QString textureFileName){
     texture->setMinificationFilter(QOpenGLTexture::Nearest);
     texture->setMagnificationFilter(QOpenGLTexture::Linear);
 
+}
+
+void MainWidget::initBonesTransforms(QVector<QMatrix4x4> bonesTransforms){
+    for(int i =0; i< bonesTransforms.size(); ++i){
+        bonesTransformations[i] = bonesTransforms[i];
+    }
 }
 
 //! [5]
@@ -265,6 +276,9 @@ void MainWidget::paintGL()
     program.setUniformValue("mvp",projection * matrix);
 
     program.setUniformValue("texture", 0);
+
+
+    program.setUniformValueArray("boneTransformations", bonesTransformations, 30);
 //! [6]
 
 

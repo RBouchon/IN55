@@ -1,5 +1,6 @@
 #include "animatedmodel.h"
 #include "iostream"
+#include "math.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -24,6 +25,25 @@
 AnimatedModel:: AnimatedModel(QString fileName)
 {
 
+    Assimp::Importer importer;
+
+
+
+
+    scene = importer.ReadFile(fileName.toStdString(),
+    aiProcess_CalcTangentSpace |
+    aiProcess_Triangulate |
+    aiProcess_JoinIdenticalVertices |
+    aiProcess_SortByPType);
+
+    scene = importer.GetOrphanedScene();
+
+    if( !scene)
+    {
+        std::cout << importer.GetErrorString() << std::endl;
+    }
+
+
     loadModelFromFile(fileName);
 
 
@@ -37,28 +57,15 @@ AnimatedModel::~AnimatedModel(){
 //Initialize model from file
 void AnimatedModel::loadModelFromFile(QString fileName){
 
-    Assimp::Importer importer;
 
-    int meshID = 0;
-
-
-    const aiScene* scene = importer.ReadFile(fileName.toStdString(),
-    aiProcess_CalcTangentSpace |
-    aiProcess_Triangulate |
-    aiProcess_JoinIdenticalVertices |
-    aiProcess_SortByPType);
-
+int meshID = 0;
     // If the import failed, report it
-    if( !scene)
-    {
-        std::cout << importer.GetErrorString() << std::endl;
-    }
 
     //Get model informations from the scene
     aiMesh **meshes = scene->mMeshes;
 
 
-    float dezoom = 20;
+
 
 
     //Get list of vertices
@@ -71,7 +78,7 @@ void AnimatedModel::loadModelFromFile(QString fileName){
         QVector<Bone*> vertexBones;
         QVector<float> weight;
 
-        Vertex* newVertex = new Vertex(QVector3D(meshes[meshID]->mVertices[i].x/dezoom,meshes[meshID]->mVertices[i].y/dezoom, meshes[meshID]->mVertices[i].z/dezoom),
+        Vertex* newVertex = new Vertex(QVector3D(meshes[meshID]->mVertices[i].x,meshes[meshID]->mVertices[i].y, meshes[meshID]->mVertices[i].z),
                                        QVector2D(meshes[meshID]->mTextureCoords[0][i].x,meshes[meshID]->mTextureCoords[0][i].y),
                                        QVector3D(meshes[meshID]->mNormals[i].x, meshes[meshID]->mNormals[i].y, meshes[meshID]->mNormals[i].z),
                                        vertexBones, weight);
@@ -108,11 +115,15 @@ void AnimatedModel::loadModelFromFile(QString fileName){
 
 
         //Set the bones and weights on each vertices affected by this bone
+
         for(unsigned int k = 0; k<meshes[meshID]->mBones[j]->mNumWeights; ++k){
+
             verticesList[meshes[meshID]->mBones[j]->mWeights[k].mVertexId]->getBones().append(newBone);
             verticesList[meshes[meshID]->mBones[j]->mWeights[k].mVertexId]->getBonesWeight().append(meshes[meshID]->mBones[j]->mWeights[k].mWeight);
+
         }
     }
+
 
 
 
@@ -178,7 +189,7 @@ void AnimatedModel::loadModelFromFile(QString fileName){
                 for(int m = 0;m<bonesList.size(); ++m){ // Get the bone from the list of bones
                     if(bonesList[m]->getName() == QString(scene->mAnimations[i]->mChannels[k]->mNodeName.data)){
                         transformedBone = bonesList[m];
-                        std::cout<< "ok"<< std::endl;                    }
+                    }
                 }
 
                 if(transformedBone != NULL){
@@ -226,12 +237,37 @@ void AnimatedModel::loadModelFromFile(QString fileName){
 
 
 
+
+
+    // Generate childIndex list for each bones
+    for(int i = 0; i <bonesList.size(); ++i){
+        bonesList[i]->generateChildsIndex(bonesList);
+    }
+
     vertices = verticesList;
     indices = indicesList;
     bones = bonesList;
     textureFileName = textureName;
     animations = animationsList;
 
+
+
+
+    globalTransform = QMatrix4x4(scene->mRootNode->mTransformation.a1, scene->mRootNode->mTransformation.a2, scene->mRootNode->mTransformation.a3, scene->mRootNode->mTransformation.a4,
+                                 scene->mRootNode->mTransformation.b1, scene->mRootNode->mTransformation.b2, scene->mRootNode->mTransformation.b3, scene->mRootNode->mTransformation.b4,
+                                 scene->mRootNode->mTransformation.c1, scene->mRootNode->mTransformation.c2, scene->mRootNode->mTransformation.c3, scene->mRootNode->mTransformation.c4,
+                                 scene->mRootNode->mTransformation.d1, scene->mRootNode->mTransformation.d2, scene->mRootNode->mTransformation.d3, scene->mRootNode->mTransformation.d4).inverted();
+
+        std::cout<< "transformation [globale]"<< " :"<< std::endl;
+        std::cout<< "("<<globalTransform.row(0).w() << " ; " <<globalTransform.row(0).x()<< " ; " << globalTransform.row(0).y()<< " ; "<< globalTransform.row(0).z()<< ")"<< std::endl;
+        std::cout<< "("<<globalTransform.row(1).w() << " ; " << globalTransform.row(1).x()<< " ; " <<globalTransform.row(1).y()<< " ; "<< globalTransform.row(1).z()<< ")"<< std::endl;
+        std::cout<< "("<<globalTransform.row(2).w() << " ; " << globalTransform.row(2).x()<< " ; " << globalTransform.row(2).y()<< " ; "<< globalTransform.row(2).z()<< ")"<< std::endl;
+        std::cout<< "("<<globalTransform.row(3).w() << " ; " << globalTransform.row(3).x()<< " ; " << globalTransform.row(3).y()<< " ; "<< globalTransform.row(3).z()<< ")"<< std::endl;
+
+
+
+
+    /*
     std::cout<< "Nombre de frame : " << animationsList[0]->getFrameNumber()<< std::endl;
     std::cout<< "Nombre de frame par seconde : " << animationsList[0]->getFramePerSecond()<< std::endl;
     std::cout<< "Nombre de keyFrame : " << animationsList[0]->getKeyFramesList().size()<< std::endl;
@@ -250,6 +286,101 @@ void AnimatedModel::loadModelFromFile(QString fileName){
                       <<std::endl;
          }
     }
+    */
+
+}
+
+
+QVector<QMatrix4x4> AnimatedModel::getTransformationsAtTime(double time){
+    QVector<QMatrix4x4> transformationList;
+    transformationList.resize(bones.size());
+
+    double framePerSeconde = animations[0]->getFramePerSecond() != 0 ?  animations[0]->getFramePerSecond() : 30.0f;
+    double animationTime = fmod(time * framePerSeconde, animations[0]->getFrameNumber());
+
+    QMatrix4x4 identity;
+    identity.setToIdentity();
+
+
+    calculateBonesTransformations(animationTime, transformationList, identity, scene->mRootNode );
+
+std::cout<<"---------------------------"<<std::endl;
+    for(int i = 0; i<bones.size(); ++i){
+        std::cout<< "transformation ["<< i <<"]"<< " :"<< std::endl;
+        std::cout<< "("<<transformationList[i].row(0).w() << " ; " <<transformationList[i].row(0).x()<< " ; " << transformationList[i].row(0).y()<< " ; "<< transformationList[i].row(0).z()<< ")"<< std::endl;
+        std::cout<< "("<<transformationList[i].row(1).w() << " ; " <<transformationList[i].row(1).x()<< " ; " <<transformationList[i].row(1).y()<< " ; "<< transformationList[i].row(1).z()<< ")"<< std::endl;
+        std::cout<< "("<<transformationList[i].row(2).w() << " ; " << transformationList[i].row(2).x()<< " ; " << transformationList[i].row(2).y()<< " ; "<< transformationList[i].row(2).z()<< ")"<< std::endl;
+        std::cout<< "("<<transformationList[i].row(3).w() << " ; " << transformationList[i].row(3).x()<< " ; " << transformationList[i].row(3).y()<< " ; "<< transformationList[i].row(3).z()<< ")"<< std::endl;
+    }
+    return transformationList;
+}
+
+void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x4> &transformationList, QMatrix4x4 parentTransformation, aiNode* node){
+
+    // TODO : INTERPOLATION
+
+
+
+    QMatrix4x4 nodeTransform = QMatrix4x4(node->mTransformation.a1, node->mTransformation.a2, node->mTransformation.a3 ,node->mTransformation.a4,
+                                          node->mTransformation.b1, node->mTransformation.b2, node->mTransformation.b3 ,node->mTransformation.b4,
+                                          node->mTransformation.c1, node->mTransformation.c2, node->mTransformation.c3 ,node->mTransformation.c4,
+                                          node->mTransformation.d1, node->mTransformation.d2, node->mTransformation.d3 ,node->mTransformation.d4);
+
+
+    for(int i = 0; i<animations[0]->getKeyFramesList()[0]->getBoneTransforms().size(); ++i){
+        if(animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getBone()->getName() == QString(node->mName.data)){
+
+            QMatrix4x4 T = QMatrix4x4(1,0,0,animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getPosition().x(),
+                                      0,1,0,animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getPosition().y(),
+                                      0,0,1,animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getPosition().z(),
+                                      0,0,0,1) ;
+
+            QMatrix4x4 R = QMatrix4x4(animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getRotation().toRotationMatrix()) ;
+
+            QMatrix4x4 S = QMatrix4x4(animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getScaling().x(), 0 ,0, 0,
+                                      0, animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getScaling().y(), 0, 0,
+                                      0, 0, animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getScaling().y(), 0,
+                                      0, 0, 0, 1);
+
+            nodeTransform = T * R* S;
+        }
+    }
+
+
+    QMatrix4x4 transformation = parentTransformation * nodeTransform;
+
+    for(unsigned int i = 0; i<bones.size(); ++i){
+        if(bones[i]->getName() == QString(node->mName.data)){
+            transformationList[i] = globalTransform * transformation * bones[i]->getOffset() ;
+            std::cout<< "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"<< std::endl;
+
+            std::cout<< "transformation ["<< node->mName.data <<"]"<< " : index["<<i<<"]" << std::endl;
+            std::cout<< "transformation ["<< i <<"]"<< " :"<< std::endl;
+            std::cout<< "("<<transformationList[i].row(0).w() << " ; " <<transformationList[i].row(0).x()<< " ; " << transformationList[i].row(0).y()<< " ; "<< transformationList[i].row(0).z()<< ")"<< std::endl;
+            std::cout<< "("<<transformationList[i].row(1).w() << " ; " <<transformationList[i].row(1).x()<< " ; " <<transformationList[i].row(1).y()<< " ; "<< transformationList[i].row(1).z()<< ")"<< std::endl;
+            std::cout<< "("<<transformationList[i].row(2).w() << " ; " << transformationList[i].row(2).x()<< " ; " << transformationList[i].row(2).y()<< " ; "<< transformationList[i].row(2).z()<< ")"<< std::endl;
+            std::cout<< "("<<transformationList[i].row(3).w() << " ; " << transformationList[i].row(3).x()<< " ; " << transformationList[i].row(3).y()<< " ; "<< transformationList[i].row(3).z()<< ")"<< std::endl;
+            std::cout<<"YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"<< std::endl;
+        }
+    }
+
+
+    std::cout<< "transformation ["<< node->mName.data <<"]"<< " :"<< std::endl;
+    std::cout<< "("<<transformation.row(0).w() << " ; " <<transformation.row(0).x()<< " ; " << transformation.row(0).y()<< " ; "<< transformation.row(0).z()<< ")"<< std::endl;
+    std::cout<< "("<<transformation.row(1).w() << " ; " <<transformation.row(1).x()<< " ; " <<transformation.row(1).y()<< " ; "<< transformation.row(1).z()<< ")"<< std::endl;
+    std::cout<< "("<<transformation.row(2).w() << " ; " << transformation.row(2).x()<< " ; " << transformation.row(2).y()<< " ; "<< transformation.row(2).z()<< ")"<< std::endl;
+    std::cout<< "("<<transformation.row(3).w() << " ; " << transformation.row(3).x()<< " ; " << transformation.row(3).y()<< " ; "<< transformation.row(3).z()<< ")"<< std::endl;
+/*
+    for(int i = 0; i< bones[currentBoneIndex]->getChildsIndex().size(); ++i){
+        calculateBonesTransformations(time, transformationList, transformation, bones[currentBoneIndex]->getChildsIndex()[i]);
+    }
+*/
+
+    for (unsigned int i = 0 ; i < node->mNumChildren ; i++) {
+
+        calculateBonesTransformations(time, transformationList, transformation, node->mChildren[i]);
+
+    }
 
 }
 
@@ -263,4 +394,12 @@ QVector<unsigned int> AnimatedModel::getIndices(){
 
 QString AnimatedModel::getTextureFileName(){
     return textureFileName;
+}
+
+QVector<Bone*> AnimatedModel::getBones(){
+    return bones;
+}
+
+QVector<Animation*> AnimatedModel::getAnimations(){
+    return animations;
 }

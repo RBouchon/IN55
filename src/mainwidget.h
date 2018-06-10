@@ -86,6 +86,8 @@ protected:
 
     void initShaders();
     void initTextures(QString textureFileName);
+    void initBonesTransforms(QVector<QMatrix4x4> bonesTransforms);
+
 
 private:
     QBasicTimer timer;
@@ -95,6 +97,8 @@ private:
     Camera cam;
     QMatrix4x4 projection;
     QMatrix4x4 view;
+    QMatrix4x4 bonesTransformations[30];
+
 
     QVector2D mousePressPosition;
     QVector3D rotationAxis;
