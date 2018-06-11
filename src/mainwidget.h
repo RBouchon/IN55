@@ -108,6 +108,10 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
+
+    float m_phi;
+    float m_theta;
+    QVector3D camOrientation;
 };
 
 #endif // MAINWIDGET_H
