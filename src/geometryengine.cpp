@@ -102,8 +102,8 @@ void GeometryEngine::initGeometry()
     for(unsigned int i = 0; i<nbrVertices; ++i){
 
         // Get the index for each bones influencing the vertex
-        GLuint bonesIndex[12] = {0};
-        GLfloat weight[12] = {0.0f};
+        GLuint bonesIndex[4] = {0};
+        GLfloat weight[4] = {0};
         for(int j = 0; j<modelVertices[i]->getBones().size(); ++j ){
             for(int k = 0; k<model.getBones().size(); ++k){
                 if(modelVertices[i]->getBones()[j]->getName() == model.getBones()[k]->getName() ){
@@ -118,7 +118,7 @@ void GeometryEngine::initGeometry()
         QVector4D vertexPosition = QVector4D(modelVertices[i]->getPosition().x(), modelVertices[i]->getPosition().y(), modelVertices[i]->getPosition().z(), 0.0);
         QVector4D newVertex = (boneTransformations[bonesIndex[0]] * vertexPosition) * weight[0];
 
-        for(int i = 1; i<12; ++i){
+        for(int i = 1; i<4; ++i){
             newVertex = (boneTransformations[bonesIndex[i]] * vertexPosition) * weight[i] + newVertex;
 
         }

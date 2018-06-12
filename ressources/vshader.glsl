@@ -7,8 +7,8 @@ uniform mat4 boneTransformations[30]; // BoneTransformations array
 in vec3 vertexPosition; // Position of the vertex
 in vec2 texCoord; // Texture Coordinates of the vertex
 
-in uint bonesIndex[12];  // Index of the bones
-in float weight[12];  // Weight of the bones
+in uint bonesIndex[4];  // Index of the bones
+in float weight[4];  // Weight of the bones
 
 
 out vec2 texCoord0;
@@ -22,7 +22,7 @@ void main()
     // Calculate vertex position with bones influences
     newVertex = (boneTransformations[bonesIndex[0]] * vec4(vertexPosition, 0.0)) * weight[0];
 
-    for(int i =1; i<12; ++i){
+    for(int i =1; i<4; ++i){
         newVertex = (boneTransformations[bonesIndex[i]] * vec4(vertexPosition, 0.0)) * weight[i] + newVertex;
     }
 
