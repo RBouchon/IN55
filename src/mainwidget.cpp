@@ -106,18 +106,12 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
 
             case Qt::Key_Z:
                 //Bouger cam en avant
-                //camPosition.setZ(camPosition.z()+5);
-                //camTarget.setZ(camTarget.z()+5);
-                camPosition = camPosition + camOrientation * 4;
-                camTarget = camPosition + camOrientation;
+                cam.avancer();
                 update();
                 break;
             case Qt::Key_S:
                 //Bouger cam en arriere
-                //camPosition.setZ(camPosition.z()-5);
-                //camTarget.setZ(camTarget.z()-5);
-                camPosition = camPosition - camOrientation * 4;
-                camTarget = camPosition + camOrientation;
+                cam.reculer();
                 update();
                 break;
 
@@ -128,16 +122,7 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
 }
 
 void MainWidget::wheelEvent(QWheelEvent *event){
-       QPoint numPixels = event->angleDelta()/30;
-       qInfo("molette");
-       if (!numPixels.isNull()) {
-           qInfo("molette IN");
 
-           camPosition.setZ(camPosition.z()+numPixels.y());
-
-           qDebug() << camPosition;
-           update();
-       }
 }
 
 void MainWidget::mouseMoveEvent(QMouseEvent *event){
@@ -146,64 +131,7 @@ void MainWidget::mouseMoveEvent(QMouseEvent *event){
     // Récupération des angles
     QVector2D newMousePosition = QVector2D(event->localPos());
     QVector2D deltaVector =newMousePosition - mousePressPosition  ;
-    m_phi += -deltaVector.y() * 0.001;
-    m_theta += -deltaVector.x()*0.001;
-    qDebug() << newMousePosition;
-    qDebug() << mousePressPosition;
-    qDebug() << m_phi;
-    qDebug() << m_theta;
-
-
-    // Limitation de l'angle phi
-
-    if(m_phi > 89.0)
-        m_phi = 89.0;
-
-    else if(m_phi < -89.0)
-        m_phi = -89.0;
-
-
-    // Conversion des angles en radian
-
-    float phiRadian = m_phi * M_PI / 180;
-    float thetaRadian = m_theta * M_PI / 180;
-
-
-    // Si l'axe vertical est l'axe X
-
-    if(upVector.x() == 1.0)
-    {
-        // Calcul des coordonnées sphériques
-
-        camOrientation.setX(sin(phiRadian));
-        camOrientation.setY(cos(phiRadian) * cos(thetaRadian));
-        camOrientation.setZ(cos(phiRadian) * sin(thetaRadian));
-    }
-
-
-    // Si c'est l'axe Y
-
-    else if(upVector.y() == 1.0)
-    {
-        // Calcul des coordonnées sphériques
-
-        camOrientation.setX(cos(phiRadian) * sin(thetaRadian));
-        camOrientation.setY(sin(phiRadian));
-        camOrientation.setZ(cos(phiRadian) * cos(thetaRadian));
-    }
-
-
-    // Sinon c'est l'axe Z
-
-    else
-    {
-        // Calcul des coordonnées sphériques
-
-        camOrientation.setX(cos(phiRadian) * cos(thetaRadian));
-        camOrientation.setY(cos(phiRadian) * sin(thetaRadian));
-        camOrientation.setZ(sin(phiRadian));
-    }
-    camTarget = camPosition + camOrientation;
+    cam.orienter(deltaVector.x(),deltaVector.y());
     update();
 
 }
@@ -266,11 +194,8 @@ void MainWidget::initializeGL()
     // Enable back face culling
     glEnable(GL_CULL_FACE);
 //! [2]
-    m_phi =0;
-    m_theta =0;
-    camPosition = QVector3D(0.0,0.0,-40);
-    camTarget = QVector3D(0.0,0.0,-15);
-    upVector = QVector3D(0.0,1.0,0.0);
+
+
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open file dae"), "./", tr("dae Files (*.dae)"));
 
@@ -351,7 +276,7 @@ void MainWidget::paintGL()
 
     texture->bind();
     view.setToIdentity();
-    view.lookAt(camPosition,camTarget,upVector);
+    view.lookAt(cam.getCam_position(),cam.getCam_pointcible(),cam.getCamUpVector());
 //! [6]
     // Calculate model view transformation
     QMatrix4x4 matrix;
