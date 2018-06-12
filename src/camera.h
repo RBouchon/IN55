@@ -18,17 +18,19 @@ public:
     void orienter(int xRel, int YRel);
     void avancer();
     void reculer();
-    QVector3D getM_position();
-    QVector3D getM_pointcible();
-    QVector3D getAxeVertical();
+    QVector3D getCam_position();
+    QVector3D getCam_pointcible();
+    QVector3D getCamUpVector();
 private:
+    QVector3D camPosition;
+    QVector3D camTarget;
+    QVector3D upVector;
+
     float m_phi;
     float m_theta;
-    QVector3D m_orientation;
-    QVector3D m_axeVertical;
-    QVector3D m_deplacementLateral;
-    QVector3D m_position;
-    QVector3D m_pointCible;
+    QVector3D camOrientation;
+
+    float sensibiliteRota;
 };
 
 #endif // CAMERA_H

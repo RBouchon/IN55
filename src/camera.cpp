@@ -2,19 +2,26 @@
 
 Camera::Camera()
 {
-
+    m_phi =0;
+    m_theta =0;
+    camPosition = QVector3D(0.0,0.0,-40);
+    camTarget = QVector3D(0.0,0.0,-5);
+    upVector = QVector3D(0.0,1.0,0.0);
+    sensibiliteRota=0.001;
 }
 
 Camera::~Camera(){
 
 }
 
-void Camera::orienter(int xRel, int yRel)
-{
-    // Récupération des angles
 
-    m_phi += -yRel * 0.5;
-    m_theta += -xRel * 0.5;
+void Camera::orienter(int xRel, int YRel){
+    m_phi += -YRel * sensibiliteRota;
+    m_theta += -xRel* sensibiliteRota;
+    //qDebug() << newMousePosition;
+    //qDebug() << mousePressPosition;
+    //qDebug() << m_phi;
+    //qDebug() << m_theta;
 
 
     // Limitation de l'angle phi
@@ -28,31 +35,31 @@ void Camera::orienter(int xRel, int yRel)
 
     // Conversion des angles en radian
 
-    float phiRadian = m_phi * 3.14 / 180;
-    float thetaRadian = m_theta * 3.14 / 180;
+    float phiRadian = m_phi * M_PI / 180;
+    float thetaRadian = m_theta * M_PI / 180;
 
 
     // Si l'axe vertical est l'axe X
 
-    if(m_axeVertical.x() == 1.0)
+    if(upVector.x() == 1.0)
     {
         // Calcul des coordonnées sphériques
 
-        m_orientation.setX(sin(phiRadian));
-        m_orientation.setY(cos(phiRadian) * cos(thetaRadian));
-        m_orientation.setZ(cos(phiRadian) * sin(thetaRadian));
+        camOrientation.setX(sin(phiRadian));
+        camOrientation.setY(cos(phiRadian) * cos(thetaRadian));
+        camOrientation.setZ(cos(phiRadian) * sin(thetaRadian));
     }
 
 
     // Si c'est l'axe Y
 
-    else if(m_axeVertical.y() == 1.0)
+    else if(upVector.y() == 1.0)
     {
         // Calcul des coordonnées sphériques
 
-        m_orientation.setX(cos(phiRadian) * sin(thetaRadian));
-        m_orientation.setY(sin(phiRadian));
-        m_orientation.setZ(cos(phiRadian) * cos(thetaRadian));
+        camOrientation.setX(cos(phiRadian) * sin(thetaRadian));
+        camOrientation.setY(sin(phiRadian));
+        camOrientation.setZ(cos(phiRadian) * cos(thetaRadian));
     }
 
 
@@ -62,52 +69,31 @@ void Camera::orienter(int xRel, int yRel)
     {
         // Calcul des coordonnées sphériques
 
-        m_orientation.setX(cos(phiRadian) * cos(thetaRadian));
-        m_orientation.setY(cos(phiRadian) * sin(thetaRadian));
-        m_orientation.setZ(sin(phiRadian));
+        camOrientation.setX(cos(phiRadian) * cos(thetaRadian));
+        camOrientation.setY(cos(phiRadian) * sin(thetaRadian));
+        camOrientation.setZ(sin(phiRadian));
     }
+    camTarget = camPosition + camOrientation;
 
 
-    // Calcul de la normale
-
-    m_deplacementLateral.normal(m_axeVertical, m_orientation);
-    m_deplacementLateral.normalize();
-
-
-    // Calcul du point ciblé pour OpenGL
-
-    m_pointCible = m_position + m_orientation;
 }
 
-void Camera::avancer()
-{
-    // Avancée de la caméra
-
-    //if(input.getTouche(SDL_SCANCODE_UP))
-    //{
-        m_position = m_position + m_orientation * 0.5f;
-        m_pointCible = m_position + m_orientation;
-    //}
+}
+void Camera::avancer(){
+    camPosition = camPosition + camOrientation * 4;
+    camTarget = camPosition + camOrientation;
+}
+void Camera::reculer(){
+    camPosition = camPosition - camOrientation * 4;
+    camTarget = camPosition + camOrientation;
 }
 
-void Camera::reculer()
-{
-    // reculement de la caméra
-
-    //if(input.getTouche(SDL_SCANCODE_UP))
-    //{
-        m_position = m_position - m_orientation * 0.5f;
-        m_pointCible = m_position + m_orientation;
-    //}
+QVector3D Camera::getCam_position(){
+    return camPosition;
 }
-
-QVector3D Camera::getM_position(){
-    return m_position;
+QVector3D Camera::getCam_pointcible(){
+    return camTarget
 }
-
-QVector3D Camera::getM_pointcible(){
-    return m_pointCible;
-}
-QVector3D Camera::getAxeVertical(){
-    return m_axeVertical;
+QVector3D Camera::getCamUpVector(){
+    return upVector;
 }

@@ -100,18 +100,13 @@ private:
 
     QMatrix4x4 bonesTransformations[30];
 
-    QVector3D camPosition;
-    QVector3D camTarget;
-    QVector3D upVector;
+
 
     QVector2D mousePressPosition;
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
 
-    float m_phi;
-    float m_theta;
-    QVector3D camOrientation;
 };
 
 #endif // MAINWIDGET_H
