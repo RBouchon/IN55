@@ -258,12 +258,12 @@ int meshID = 0;
                                  scene->mRootNode->mTransformation.c1, scene->mRootNode->mTransformation.c2, scene->mRootNode->mTransformation.c3, scene->mRootNode->mTransformation.c4,
                                  scene->mRootNode->mTransformation.d1, scene->mRootNode->mTransformation.d2, scene->mRootNode->mTransformation.d3, scene->mRootNode->mTransformation.d4).inverted();
 
-        std::cout<< "transformation [globale]"<< " :"<< std::endl;
-        std::cout<< "("<<globalTransform.row(0).w() << " ; " <<globalTransform.row(0).x()<< " ; " << globalTransform.row(0).y()<< " ; "<< globalTransform.row(0).z()<< ")"<< std::endl;
-        std::cout<< "("<<globalTransform.row(1).w() << " ; " << globalTransform.row(1).x()<< " ; " <<globalTransform.row(1).y()<< " ; "<< globalTransform.row(1).z()<< ")"<< std::endl;
-        std::cout<< "("<<globalTransform.row(2).w() << " ; " << globalTransform.row(2).x()<< " ; " << globalTransform.row(2).y()<< " ; "<< globalTransform.row(2).z()<< ")"<< std::endl;
-        std::cout<< "("<<globalTransform.row(3).w() << " ; " << globalTransform.row(3).x()<< " ; " << globalTransform.row(3).y()<< " ; "<< globalTransform.row(3).z()<< ")"<< std::endl;
 
+    std::cout<< "globalTransform :"<< std::endl;
+    std::cout<< "("<<globalTransform.row(0).x() << " ; " <<globalTransform.row(0).y()<< " ; " << globalTransform.row(0).z()<< " ; "<< globalTransform.row(0).w()<< ")"<< std::endl;
+    std::cout<< "("<<globalTransform.row(1).x() << " ; " <<globalTransform.row(1).y()<< " ; " <<globalTransform.row(1).z()<< " ; "<< globalTransform.row(1).w()<< ")"<< std::endl;
+    std::cout<< "("<<globalTransform.row(2).x() << " ; " << globalTransform.row(2).y()<< " ; " << globalTransform.row(2).z()<< " ; "<< globalTransform.row(2).w()<< ")"<< std::endl;
+    std::cout<< "("<<globalTransform.row(3).x() << " ; " << globalTransform.row(3).y()<< " ; " << globalTransform.row(3).z()<< " ; "<< globalTransform.row(3).w()<< ")"<< std::endl;
 
 
 
@@ -305,13 +305,7 @@ QVector<QMatrix4x4> AnimatedModel::getTransformationsAtTime(double time){
     calculateBonesTransformations(animationTime, transformationList, identity, scene->mRootNode );
 
 std::cout<<"---------------------------"<<std::endl;
-    for(int i = 0; i<bones.size(); ++i){
-        std::cout<< "transformation ["<< i <<"]"<< " :"<< std::endl;
-        std::cout<< "("<<transformationList[i].row(0).w() << " ; " <<transformationList[i].row(0).x()<< " ; " << transformationList[i].row(0).y()<< " ; "<< transformationList[i].row(0).z()<< ")"<< std::endl;
-        std::cout<< "("<<transformationList[i].row(1).w() << " ; " <<transformationList[i].row(1).x()<< " ; " <<transformationList[i].row(1).y()<< " ; "<< transformationList[i].row(1).z()<< ")"<< std::endl;
-        std::cout<< "("<<transformationList[i].row(2).w() << " ; " << transformationList[i].row(2).x()<< " ; " << transformationList[i].row(2).y()<< " ; "<< transformationList[i].row(2).z()<< ")"<< std::endl;
-        std::cout<< "("<<transformationList[i].row(3).w() << " ; " << transformationList[i].row(3).x()<< " ; " << transformationList[i].row(3).y()<< " ; "<< transformationList[i].row(3).z()<< ")"<< std::endl;
-    }
+
     return transformationList;
 }
 
@@ -339,15 +333,15 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
             QMatrix4x4 S = QMatrix4x4(animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getScaling().x(), 0 ,0, 0,
                                       0, animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getScaling().y(), 0, 0,
-                                      0, 0, animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getScaling().y(), 0,
+                                      0, 0, animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getScaling().z(), 0,
                                       0, 0, 0, 1);
 
-            nodeTransform = T * R* S;
+            //nodeTransform = T * R* S;
         }
     }
 
 
-    QMatrix4x4 transformation = parentTransformation * nodeTransform;
+    QMatrix4x4 transformation =  parentTransformation * nodeTransform;
 
     for(unsigned int i = 0; i<bones.size(); ++i){
         if(bones[i]->getName() == QString(node->mName.data)){
@@ -356,20 +350,20 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
             std::cout<< "transformation ["<< node->mName.data <<"]"<< " : index["<<i<<"]" << std::endl;
             std::cout<< "transformation ["<< i <<"]"<< " :"<< std::endl;
-            std::cout<< "("<<transformationList[i].row(0).w() << " ; " <<transformationList[i].row(0).x()<< " ; " << transformationList[i].row(0).y()<< " ; "<< transformationList[i].row(0).z()<< ")"<< std::endl;
-            std::cout<< "("<<transformationList[i].row(1).w() << " ; " <<transformationList[i].row(1).x()<< " ; " <<transformationList[i].row(1).y()<< " ; "<< transformationList[i].row(1).z()<< ")"<< std::endl;
-            std::cout<< "("<<transformationList[i].row(2).w() << " ; " << transformationList[i].row(2).x()<< " ; " << transformationList[i].row(2).y()<< " ; "<< transformationList[i].row(2).z()<< ")"<< std::endl;
-            std::cout<< "("<<transformationList[i].row(3).w() << " ; " << transformationList[i].row(3).x()<< " ; " << transformationList[i].row(3).y()<< " ; "<< transformationList[i].row(3).z()<< ")"<< std::endl;
+            std::cout<< "("<<transformationList[i].row(0).x() << " ; " <<transformationList[i].row(0).y()<< " ; " << transformationList[i].row(0).z()<< " ; "<< transformationList[i].row(0).w()<< ")"<< std::endl;
+            std::cout<< "("<<transformationList[i].row(1).x() << " ; " <<transformationList[i].row(1).y()<< " ; " <<transformationList[i].row(1).z()<< " ; "<< transformationList[i].row(1).w()<< ")"<< std::endl;
+            std::cout<< "("<<transformationList[i].row(2).x() << " ; " << transformationList[i].row(2).y()<< " ; " << transformationList[i].row(2).z()<< " ; "<< transformationList[i].row(2).w()<< ")"<< std::endl;
+            std::cout<< "("<<transformationList[i].row(3).x() << " ; " << transformationList[i].row(3).y()<< " ; " << transformationList[i].row(3).z()<< " ; "<< transformationList[i].row(3).w()<< ")"<< std::endl;
             std::cout<<"YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"<< std::endl;
         }
     }
 
 
     std::cout<< "transformation ["<< node->mName.data <<"]"<< " :"<< std::endl;
-    std::cout<< "("<<transformation.row(0).w() << " ; " <<transformation.row(0).x()<< " ; " << transformation.row(0).y()<< " ; "<< transformation.row(0).z()<< ")"<< std::endl;
-    std::cout<< "("<<transformation.row(1).w() << " ; " <<transformation.row(1).x()<< " ; " <<transformation.row(1).y()<< " ; "<< transformation.row(1).z()<< ")"<< std::endl;
-    std::cout<< "("<<transformation.row(2).w() << " ; " << transformation.row(2).x()<< " ; " << transformation.row(2).y()<< " ; "<< transformation.row(2).z()<< ")"<< std::endl;
-    std::cout<< "("<<transformation.row(3).w() << " ; " << transformation.row(3).x()<< " ; " << transformation.row(3).y()<< " ; "<< transformation.row(3).z()<< ")"<< std::endl;
+    std::cout<< "("<<transformation.row(0).x() << " ; " <<transformation.row(0).y()<< " ; " << transformation.row(0).z()<< " ; "<< transformation.row(0).w()<< ")"<< std::endl;
+    std::cout<< "("<<transformation.row(1).x() << " ; " <<transformation.row(1).y()<< " ; " <<transformation.row(1).z()<< " ; "<< transformation.row(1).w()<< ")"<< std::endl;
+    std::cout<< "("<<transformation.row(2).x() << " ; " << transformation.row(2).y()<< " ; " << transformation.row(2).z()<< " ; "<< transformation.row(2).w()<< ")"<< std::endl;
+    std::cout<< "("<<transformation.row(3).x() << " ; " << transformation.row(3).y()<< " ; " << transformation.row(3).z()<< " ; "<< transformation.row(3).w()<< ")"<< std::endl;
 /*
     for(int i = 0; i< bones[currentBoneIndex]->getChildsIndex().size(); ++i){
         calculateBonesTransformations(time, transformationList, transformation, bones[currentBoneIndex]->getChildsIndex()[i]);
