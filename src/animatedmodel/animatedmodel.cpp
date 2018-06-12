@@ -253,17 +253,9 @@ int meshID = 0;
 
 
 
-    globalTransform = QMatrix4x4(scene->mRootNode->mTransformation.a1, scene->mRootNode->mTransformation.a2, scene->mRootNode->mTransformation.a3, scene->mRootNode->mTransformation.a4,
-                                 scene->mRootNode->mTransformation.b1, scene->mRootNode->mTransformation.b2, scene->mRootNode->mTransformation.b3, scene->mRootNode->mTransformation.b4,
-                                 scene->mRootNode->mTransformation.c1, scene->mRootNode->mTransformation.c2, scene->mRootNode->mTransformation.c3, scene->mRootNode->mTransformation.c4,
-                                 scene->mRootNode->mTransformation.d1, scene->mRootNode->mTransformation.d2, scene->mRootNode->mTransformation.d3, scene->mRootNode->mTransformation.d4).inverted();
 
 
-    std::cout<< "globalTransform :"<< std::endl;
-    std::cout<< "("<<globalTransform.row(0).x() << " ; " <<globalTransform.row(0).y()<< " ; " << globalTransform.row(0).z()<< " ; "<< globalTransform.row(0).w()<< ")"<< std::endl;
-    std::cout<< "("<<globalTransform.row(1).x() << " ; " <<globalTransform.row(1).y()<< " ; " <<globalTransform.row(1).z()<< " ; "<< globalTransform.row(1).w()<< ")"<< std::endl;
-    std::cout<< "("<<globalTransform.row(2).x() << " ; " << globalTransform.row(2).y()<< " ; " << globalTransform.row(2).z()<< " ; "<< globalTransform.row(2).w()<< ")"<< std::endl;
-    std::cout<< "("<<globalTransform.row(3).x() << " ; " << globalTransform.row(3).y()<< " ; " << globalTransform.row(3).z()<< " ; "<< globalTransform.row(3).w()<< ")"<< std::endl;
+
 
 
 
@@ -336,7 +328,7 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
                                       0, 0, animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getScaling().z(), 0,
                                       0, 0, 0, 1);
 
-            //nodeTransform = T * R* S;
+            //nodeTransform = T * R * S;
         }
     }
 
@@ -345,7 +337,7 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
     for(unsigned int i = 0; i<bones.size(); ++i){
         if(bones[i]->getName() == QString(node->mName.data)){
-            transformationList[i] = globalTransform * transformation * bones[i]->getOffset() ;
+            transformationList[i] = transformation * bones[i]->getOffset() ;
             std::cout<< "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"<< std::endl;
 
             std::cout<< "transformation ["<< node->mName.data <<"]"<< " : index["<<i<<"]" << std::endl;

@@ -280,7 +280,7 @@ void MainWidget::initializeGL()
 
     initBonesTransforms(model.getTransformationsAtTime(0));
 
-    geometries = new GeometryEngine(model);
+    geometries = new GeometryEngine(model, bonesTransformations);
 
     // Use QBasicTimer because its faster than QTimer
     timer.start(12, this);

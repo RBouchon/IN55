@@ -55,6 +55,7 @@
 #include <QVector3D>
 #include <QVector>
 #include <iostream>
+#include <cmath>
 
 struct VertexData
 {
@@ -66,9 +67,11 @@ struct VertexData
 
 
 //! [0]
-GeometryEngine::GeometryEngine(AnimatedModel animatedModel)
+GeometryEngine::GeometryEngine(AnimatedModel animatedModel, QMatrix4x4* bones)
     : indexBuf(QOpenGLBuffer::IndexBuffer), model(animatedModel)
 {
+    boneTransformations = bones;
+
     initializeOpenGLFunctions();
 
     // Generate 2 VBOs
@@ -111,8 +114,14 @@ void GeometryEngine::initGeometry()
 
         }
 
-        GLuint bonesSize = modelVertices[i]->getBones().size();
-        vertices[i] = {modelVertices[i]->getPosition(), modelVertices[i]->getTextureCoords(), bonesIndex, weight };
+        QVector4D vertexPosition = QVector4D(modelVertices[i]->getPosition().x(), modelVertices[i]->getPosition().y(), modelVertices[i]->getPosition().z(), 0.0);
+        QVector4D newVertex = (boneTransformations[bonesIndex[0]] * vertexPosition) * weight[0] +
+                (boneTransformations[bonesIndex[1]] * vertexPosition) * weight[1] +
+                (boneTransformations[bonesIndex[2]] * vertexPosition) * weight[2] +
+                (boneTransformations[bonesIndex[3]] * vertexPosition) * weight[3];
+        //vertices[i] = {modelVertices[i]->getPosition(), modelVertices[i]->getTextureCoords(), bonesIndex, weight };
+
+        vertices[i] = {QVector3D(newVertex.x(),newVertex.y(), newVertex.z()), modelVertices[i]->getTextureCoords(), bonesIndex, weight };
     }
 
 
