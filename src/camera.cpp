@@ -78,7 +78,7 @@ void Camera::orienter(int xRel, int YRel){
 
 }
 
-}
+
 void Camera::avancer(){
     camPosition = camPosition + camOrientation * 4;
     camTarget = camPosition + camOrientation;
@@ -92,7 +92,7 @@ QVector3D Camera::getCam_position(){
     return camPosition;
 }
 QVector3D Camera::getCam_pointcible(){
-    return camTarget
+    return camTarget;
 }
 QVector3D Camera::getCamUpVector(){
     return upVector;
