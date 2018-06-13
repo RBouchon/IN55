@@ -59,7 +59,7 @@
 class GeometryEngine : protected QOpenGLFunctions
 {
 public:
-    GeometryEngine(AnimatedModel animatedModel, QMatrix4x4 *Bones);
+    GeometryEngine(AnimatedModel animatedModel);
     virtual ~GeometryEngine();
 
     void drawGeometry(QOpenGLShaderProgram *program);

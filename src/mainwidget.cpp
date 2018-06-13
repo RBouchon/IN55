@@ -62,12 +62,14 @@
 #include <QFileDialog>
 #include <QMouseEvent>
 #include <math.h>
+#include <chrono>
 
 MainWidget::MainWidget(QWidget *parent) :
     QOpenGLWidget(parent),
     geometries(0),
     texture(0),
-    angularSpeed(0)
+    angularSpeed(0),
+    frameNumber(0)
 {
 }
 
@@ -107,12 +109,12 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
             case Qt::Key_Z:
                 //Bouger cam en avant
                 cam.avancer();
-                update();
+               // update();
                 break;
             case Qt::Key_S:
                 //Bouger cam en arriere
                 cam.reculer();
-                update();
+               // update();
                 break;
 
                 break;
@@ -127,12 +129,12 @@ void MainWidget::wheelEvent(QWheelEvent *event){
 
 void MainWidget::mouseMoveEvent(QMouseEvent *event){
 
-    qInfo("mouseMove");
+    //qInfo("mouseMove");
     // Récupération des angles
     QVector2D newMousePosition = QVector2D(event->localPos());
     QVector2D deltaVector =newMousePosition - mousePressPosition  ;
     cam.orienter(deltaVector.x(),deltaVector.y());
-    update();
+    //update();
 
 }
 
@@ -163,24 +165,18 @@ void MainWidget::timerEvent(QTimerEvent *)
 {
 
 
-    // Decrease angular speed (friction)
-    angularSpeed *= 0.99;
+    initBonesTransforms(bonesTransformationsList.at(frameNumber%30));
+    ++frameNumber;
+    update();
 
-    // Stop rotation when speed goes below threshold
-    if (angularSpeed < 0.01) {
-        angularSpeed = 0.0;
-    } else {
-        // Update rotation
-        rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
 
-        // Request an update
-        update();
-    }
 }
 //! [1]
 
 void MainWidget::initializeGL()
 {
+
+
     initializeOpenGLFunctions();
 
     glClearColor(0, 0, 0, 1);
@@ -199,16 +195,25 @@ void MainWidget::initializeGL()
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open file dae"), "./", tr("dae Files (*.dae)"));
 
-    AnimatedModel model = AnimatedModel(fileName);
+    model = AnimatedModel(fileName);
 
     initTextures(model.getTextureFileName());
 
-    initBonesTransforms(model.getTransformationsAtTime(0));
 
-    geometries = new GeometryEngine(model, bonesTransformations);
+    int FPS = 30;
+
+
+
+    for(unsigned int i = 0; i<FPS; ++i){
+        bonesTransformationsList.append(model.getTransformationsAtTime((1.0/FPS)*i));
+    }
+
+    //initBonesTransforms(bonesTransformationsList.at(0));
+    geometries = new GeometryEngine(model);
 
     // Use QBasicTimer because its faster than QTimer
-    timer.start(12, this);
+    timer.start((int) 1000/FPS, this);
+
 
 }
 
@@ -243,8 +248,11 @@ void MainWidget::initTextures(QString textureFileName){
 }
 
 void MainWidget::initBonesTransforms(QVector<QMatrix4x4> bonesTransforms){
+
     for(int i =0; i< bonesTransforms.size(); ++i){
+
         bonesTransformations[i] = bonesTransforms[i];
+
     }
 }
 
@@ -284,11 +292,11 @@ void MainWidget::paintGL()
     matrix.rotate(rotation);
     //view.rotate((rotation));
 
+
     // Set modelview-projection matrix
     program.setUniformValue("mvp",  projection* view * matrix);
 
     program.setUniformValue("texture", 0);
-
 
     program.setUniformValueArray("boneTransformations", bonesTransformations, 30);
 //! [6]

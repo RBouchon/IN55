@@ -12,6 +12,7 @@
 class AnimatedModel
 {
 public:
+    AnimatedModel();
     AnimatedModel(QString fileName);
     ~AnimatedModel();
     QVector<Vertex*> getVertices();
@@ -27,13 +28,16 @@ private:
 
     void loadModelFromFile(QString fileName);
     void calculateBonesTransformations(double time, QVector<QMatrix4x4> &transformationList, QMatrix4x4 parentTransformation, aiNode* node);
+    QMatrix4x4 interpolateTranslation(double time, aiNodeAnim* animationNode);
+    QMatrix4x4 interpolateRotation(double time, aiNodeAnim* animationNode);
+    QMatrix4x4 interpolateScaling(double time, aiNodeAnim* animationNode);
     QString textureFileName;
     QVector<Vertex*> vertices;
     QVector<unsigned int> indices;
     QVector<Bone*> bones;
     QVector<Animation*> animations;
     QMatrix4x4 globalTransform;
-    unsigned int rootBoneIndex;
+
 
 
 };

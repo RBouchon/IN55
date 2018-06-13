@@ -22,6 +22,11 @@
 #include "animation.h"
 
 
+
+AnimatedModel:: AnimatedModel(){
+
+}
+
 AnimatedModel:: AnimatedModel(QString fileName)
 {
 
@@ -205,18 +210,18 @@ int meshID = 0;
 
                     for(unsigned int m = 0; m <scene->mAnimations[i]->mChannels[k]->mNumRotationKeys; ++m){
                         if(scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mTime == timeStampList[j]){
-                            bt->rotation = QQuaternion(scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.w,
-                                                      scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.x,
-                                                      scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.y,
-                                                      scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.z);
+                            bt->rotation = QQuaternion(scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.x,
+                                                       scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.y,
+                                                       scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.z,
+                                                       scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.w);
                         }
                     }
 
                     for(unsigned int m = 0; m <scene->mAnimations[i]->mChannels[k]->mNumScalingKeys; ++m){
                         if(scene->mAnimations[i]->mChannels[k]->mScalingKeys[m].mTime == timeStampList[j]){
-                            bt->scaling = QVector3D(scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.x,
-                                                    scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.y,
-                                                    scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.z);
+                            bt->scaling = QVector3D(scene->mAnimations[i]->mChannels[k]->mScalingKeys[m].mValue.x,
+                                                    scene->mAnimations[i]->mChannels[k]->mScalingKeys[m].mValue.y,
+                                                    scene->mAnimations[i]->mChannels[k]->mScalingKeys[m].mValue.z);
                         }
                     }
                     bonesTransforms.append(bt);
@@ -250,45 +255,23 @@ int meshID = 0;
     textureFileName = textureName;
     animations = animationsList;
 
-
-
-
-
-
-
-
-
-
-    /*
-    std::cout<< "Nombre de frame : " << animationsList[0]->getFrameNumber()<< std::endl;
-    std::cout<< "Nombre de frame par seconde : " << animationsList[0]->getFramePerSecond()<< std::endl;
-    std::cout<< "Nombre de keyFrame : " << animationsList[0]->getKeyFramesList().size()<< std::endl;
-    for(int i =0 ; i< animationsList[0]->getKeyFramesList().size(); ++i){
-         std::cout<< "KeyFrame n° " << i << std::endl << animationsList[0]->getKeyFramesList()[i]->getTimeStamp() << std::endl;
-         std::cout<<"Nombre de bonetransform :" << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms().size() <<std::endl;
-         for(int j=0; j<animationsList[0]->getKeyFramesList()[i]->getBoneTransforms().size();++j){
-             std::cout<< "BoneTransform n° " << j << std::endl << "os : " << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getBone()->getName().toStdString() << std::endl <<
-                         "position : (" << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getPosition().x()<<
-                         " ; "<< animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getPosition().y()<<" ; "<<
-                         animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getPosition().z()<<") "<<std::endl <<
-                         "rotation : (" << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getRotation().scalar()<<
-                         " ; " << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getRotation().x()<<
-                         " ; " << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getRotation().y()<<
-                         " ; " << animationsList[0]->getKeyFramesList()[i]->getBoneTransforms()[j]->getRotation().z()
-                      <<std::endl;
-         }
-    }
-    */
+    globalTransform = QMatrix4x4(scene->mRootNode->mTransformation.a1, scene->mRootNode->mTransformation.a2, scene->mRootNode->mTransformation.a3, scene->mRootNode->mTransformation.a4,
+                                    scene->mRootNode->mTransformation.b1, scene->mRootNode->mTransformation.b2, scene->mRootNode->mTransformation.b3, scene->mRootNode->mTransformation.b4,
+                                    scene->mRootNode->mTransformation.c1, scene->mRootNode->mTransformation.c2, scene->mRootNode->mTransformation.c3, scene->mRootNode->mTransformation.c4,
+   scene->mRootNode->mTransformation.d1, scene->mRootNode->mTransformation.d2, scene->mRootNode->mTransformation.d3, scene->mRootNode->mTransformation.d4);
 
 }
 
 
 QVector<QMatrix4x4> AnimatedModel::getTransformationsAtTime(double time){
+
+
     QVector<QMatrix4x4> transformationList;
     transformationList.resize(bones.size());
 
-    double framePerSeconde = animations[0]->getFramePerSecond() != 0 ?  animations[0]->getFramePerSecond() : 30.0f;
-    double animationTime = fmod(time * framePerSeconde, animations[0]->getFrameNumber());
+    double framePerSeconde = 30;
+    double animationTime = fmod(time * framePerSeconde, scene->mAnimations[0]->mDuration);
+
 
     QMatrix4x4 identity;
     identity.setToIdentity();
@@ -296,14 +279,12 @@ QVector<QMatrix4x4> AnimatedModel::getTransformationsAtTime(double time){
 
     calculateBonesTransformations(animationTime, transformationList, identity, scene->mRootNode );
 
-std::cout<<"---------------------------"<<std::endl;
 
     return transformationList;
 }
 
 void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x4> &transformationList, QMatrix4x4 parentTransformation, aiNode* node){
 
-    // TODO : INTERPOLATION
 
 
 
@@ -313,54 +294,31 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
                                           node->mTransformation.d1, node->mTransformation.d2, node->mTransformation.d3 ,node->mTransformation.d4);
 
 
-    for(int i = 0; i<animations[0]->getKeyFramesList()[0]->getBoneTransforms().size(); ++i){
-        if(animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getBone()->getName() == QString(node->mName.data)){
 
-            QMatrix4x4 T = QMatrix4x4(1,0,0,animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getPosition().x(),
-                                      0,1,0,animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getPosition().y(),
-                                      0,0,1,animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getPosition().z(),
-                                      0,0,0,1) ;
 
-            QMatrix4x4 R = QMatrix4x4(animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getRotation().toRotationMatrix()) ;
+    for(int i = 0; i<scene->mAnimations[0]->mNumChannels; ++i){
+        if(node->mName == scene->mAnimations[0]->mChannels[i]->mNodeName){
 
-            QMatrix4x4 S = QMatrix4x4(animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getScaling().x(), 0 ,0, 0,
-                                      0, animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getScaling().y(), 0, 0,
-                                      0, 0, animations[0]->getKeyFramesList()[0]->getBoneTransforms()[i]->getScaling().z(), 0,
-                                      0, 0, 0, 1);
 
-            //nodeTransform = T * R * S;
+            QMatrix4x4 T = interpolateTranslation(time, scene->mAnimations[0]->mChannels[i]);
+            QMatrix4x4 R = interpolateTranslation(time, scene->mAnimations[0]->mChannels[i]);
+            QMatrix4x4 S = interpolateTranslation(time, scene->mAnimations[0]->mChannels[i]);
+
+
+            //nodeTransform =  T*R*S;
         }
     }
 
 
-    QMatrix4x4 transformation =  parentTransformation * nodeTransform;
+    QMatrix4x4 transformation = parentTransformation * nodeTransform;
 
     for(unsigned int i = 0; i<bones.size(); ++i){
         if(bones[i]->getName() == QString(node->mName.data)){
-            transformationList[i] = transformation * bones[i]->getOffset() ;
-            std::cout<< "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"<< std::endl;
+            transformationList[i] = transformation*bones[i]->getOffset() ;
 
-            std::cout<< "transformation ["<< node->mName.data <<"]"<< " : index["<<i<<"]" << std::endl;
-            std::cout<< "transformation ["<< i <<"]"<< " :"<< std::endl;
-            std::cout<< "("<<transformationList[i].row(0).x() << " ; " <<transformationList[i].row(0).y()<< " ; " << transformationList[i].row(0).z()<< " ; "<< transformationList[i].row(0).w()<< ")"<< std::endl;
-            std::cout<< "("<<transformationList[i].row(1).x() << " ; " <<transformationList[i].row(1).y()<< " ; " <<transformationList[i].row(1).z()<< " ; "<< transformationList[i].row(1).w()<< ")"<< std::endl;
-            std::cout<< "("<<transformationList[i].row(2).x() << " ; " << transformationList[i].row(2).y()<< " ; " << transformationList[i].row(2).z()<< " ; "<< transformationList[i].row(2).w()<< ")"<< std::endl;
-            std::cout<< "("<<transformationList[i].row(3).x() << " ; " << transformationList[i].row(3).y()<< " ; " << transformationList[i].row(3).z()<< " ; "<< transformationList[i].row(3).w()<< ")"<< std::endl;
-            std::cout<<"YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"<< std::endl;
         }
     }
 
-
-    std::cout<< "transformation ["<< node->mName.data <<"]"<< " :"<< std::endl;
-    std::cout<< "("<<transformation.row(0).x() << " ; " <<transformation.row(0).y()<< " ; " << transformation.row(0).z()<< " ; "<< transformation.row(0).w()<< ")"<< std::endl;
-    std::cout<< "("<<transformation.row(1).x() << " ; " <<transformation.row(1).y()<< " ; " <<transformation.row(1).z()<< " ; "<< transformation.row(1).w()<< ")"<< std::endl;
-    std::cout<< "("<<transformation.row(2).x() << " ; " << transformation.row(2).y()<< " ; " << transformation.row(2).z()<< " ; "<< transformation.row(2).w()<< ")"<< std::endl;
-    std::cout<< "("<<transformation.row(3).x() << " ; " << transformation.row(3).y()<< " ; " << transformation.row(3).z()<< " ; "<< transformation.row(3).w()<< ")"<< std::endl;
-/*
-    for(int i = 0; i< bones[currentBoneIndex]->getChildsIndex().size(); ++i){
-        calculateBonesTransformations(time, transformationList, transformation, bones[currentBoneIndex]->getChildsIndex()[i]);
-    }
-*/
 
     for (unsigned int i = 0 ; i < node->mNumChildren ; i++) {
 
@@ -369,6 +327,149 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
     }
 
 }
+
+
+QMatrix4x4 AnimatedModel::interpolateTranslation(double time, aiNodeAnim* animationNode){
+    QMatrix4x4 identity;
+
+    identity.setToIdentity();
+
+    if (animationNode->mNumPositionKeys == 1) {
+        return QMatrix4x4(1,0,0, animationNode->mPositionKeys[0].mValue.x,
+                          0,1,0, animationNode->mPositionKeys[0].mValue.y,
+                          0,0,1, animationNode->mPositionKeys[0].mValue.z,
+                          0,0,0,1);
+
+    }
+    if (animationNode->mNumPositionKeys == 0) {
+        return identity;
+
+    }
+
+    unsigned int positionIndex=0;
+    for (unsigned int i = 0 ; i < animationNode->mNumPositionKeys - 1 ; i++) {
+        if (time < animationNode->mPositionKeys[i + 1].mTime) {
+            positionIndex = i;
+        }
+    }
+
+    unsigned int nextPositionIndex = positionIndex +1;
+    if(nextPositionIndex >= animationNode->mNumPositionKeys ){
+        return identity;
+    }
+
+    float deltaTime = animationNode->mPositionKeys[nextPositionIndex].mTime - animationNode->mPositionKeys[positionIndex].mTime;
+    float factor = time - animationNode->mPositionKeys[positionIndex].mTime / deltaTime;
+
+    aiVector3D start = animationNode->mPositionKeys[positionIndex].mValue;
+    aiVector3D end = animationNode->mPositionKeys[nextPositionIndex].mValue;
+    aiVector3D delta = end - start;
+    aiVector3D interpolatedVector = start + factor * delta;
+
+    return QMatrix4x4(1,0,0,interpolatedVector.x,
+            0,1,0,interpolatedVector.y,
+            0,0,1,interpolatedVector.z,
+            0,0,0,1) ;
+
+
+}
+
+QMatrix4x4 AnimatedModel::interpolateRotation(double time, aiNodeAnim* animationNode){
+    QMatrix4x4 identity;
+    aiMatrix3x3 rotationMatrix;
+    identity.setToIdentity();
+
+    if (animationNode->mNumRotationKeys == 1) {
+        rotationMatrix = animationNode->mRotationKeys[0].mValue.GetMatrix();
+        return QMatrix4x4(rotationMatrix.a1, rotationMatrix.a2, rotationMatrix.a3, 0,
+                rotationMatrix.b1, rotationMatrix.b2, rotationMatrix.b3, 0,
+                rotationMatrix.c1, rotationMatrix.c2, rotationMatrix.c3, 0,
+                0,0,0,1) ;
+
+    }
+
+    if (animationNode->mNumRotationKeys == 0) {
+        return identity;
+
+    }
+
+    unsigned int rotationIndex = 0;
+    for (unsigned int i = 0 ; i < animationNode->mNumRotationKeys - 1 ; i++) {
+        if (time < animationNode->mRotationKeys[i + 1].mTime) {
+            rotationIndex = i;
+        }
+    }
+
+    unsigned int nextRotationIndex = rotationIndex +1;
+    if(nextRotationIndex >= animationNode->mNumRotationKeys ){
+        return identity;
+    }
+
+    float deltaTime = animationNode->mRotationKeys[nextRotationIndex].mTime - animationNode->mRotationKeys[rotationIndex].mTime;
+    float factor = time - animationNode->mRotationKeys[rotationIndex].mTime / deltaTime;
+
+
+    aiQuaternion start = animationNode->mRotationKeys[rotationIndex].mValue;
+    aiQuaternion end = animationNode->mRotationKeys[nextRotationIndex].mValue;
+    aiQuaternion interpolatedRotation;
+    aiQuaternion::Interpolate(interpolatedRotation, start, end, factor);
+    interpolatedRotation.Normalize();
+
+    rotationMatrix = interpolatedRotation.GetMatrix();
+
+
+
+    return QMatrix4x4(rotationMatrix.a1, rotationMatrix.a2, rotationMatrix.a3, 0,
+            rotationMatrix.b1, rotationMatrix.b2, rotationMatrix.b3, 0,
+            rotationMatrix.c1, rotationMatrix.c2, rotationMatrix.c3, 0,
+            0,0,0,1) ;
+
+
+}
+
+QMatrix4x4 AnimatedModel::interpolateScaling(double time, aiNodeAnim* animationNode){
+    QMatrix4x4 identity;
+
+    identity.setToIdentity();
+
+    if (animationNode->mNumScalingKeys == 1) {
+        return QMatrix4x4(animationNode->mScalingKeys[0].mValue.x,0,0,0,
+                0,animationNode->mScalingKeys[0].mValue.y,0,0,
+                0,0,animationNode->mScalingKeys[0].mValue.z,0,
+                0,0,0,1);
+
+    }
+    if (animationNode->mNumScalingKeys == 0) {
+        return identity;
+
+    }
+
+    unsigned int positionIndex = 0;
+    for (unsigned int i = 0 ; i < animationNode->mNumScalingKeys - 1 ; i++) {
+        if (time < animationNode->mScalingKeys[i + 1].mTime) {
+            positionIndex = i;
+        }
+    }
+
+    unsigned int nextPositionIndex = positionIndex +1;
+    if(nextPositionIndex >= animationNode->mNumScalingKeys ){
+        return identity;
+    }
+
+    float deltaTime = animationNode->mScalingKeys[nextPositionIndex].mTime - animationNode->mScalingKeys[positionIndex].mTime;
+    float factor = time - animationNode->mScalingKeys[positionIndex].mTime / deltaTime;
+
+    aiVector3D start = animationNode->mScalingKeys[positionIndex].mValue;
+    aiVector3D end = animationNode->mScalingKeys[nextPositionIndex].mValue;
+    aiVector3D delta = end - start;
+    aiVector3D interpolatedVector = start + factor * delta;
+
+    return QMatrix4x4(interpolatedVector.x,0,0,0,
+            0,interpolatedVector.y,0,0,
+            0,0,interpolatedVector.z,0,
+            0,0,0,1);
+}
+
 
 QVector<Vertex*> AnimatedModel::getVertices(){
     return vertices;

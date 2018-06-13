@@ -58,6 +58,7 @@
 #include <QOpenGLFunctions>
 #include <QMatrix4x4>
 #include <QQuaternion>
+#include <QVector>
 #include <QVector2D>
 #include <QBasicTimer>
 #include <QOpenGLShaderProgram>
@@ -90,6 +91,7 @@ protected:
 
 
 private:
+
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     GeometryEngine *geometries;
@@ -98,15 +100,16 @@ private:
     QMatrix4x4 projection;
     QMatrix4x4 view;
 
+
     QMatrix4x4 bonesTransformations[30];
-
-
 
     QVector2D mousePressPosition;
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
-
+    unsigned int frameNumber;
+    AnimatedModel model;
+    QVector<QVector<QMatrix4x4>> bonesTransformationsList;
 };
 
 #endif // MAINWIDGET_H

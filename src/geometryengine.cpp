@@ -61,16 +61,15 @@ struct VertexData
 {
     QVector3D vertexPosition;
     QVector2D texCoord;
-    GLuint *bonesIndex;  // Index of the bones
-    GLfloat *weight;  // Weight of the bones
+    QVector4D bonesIndex;  // Index of the bones
+    QVector4D weight;  // Weight of the bones
 };
 
 
 //! [0]
-GeometryEngine::GeometryEngine(AnimatedModel animatedModel, QMatrix4x4* bones)
+GeometryEngine::GeometryEngine(AnimatedModel animatedModel)
     : indexBuf(QOpenGLBuffer::IndexBuffer), model(animatedModel)
 {
-    boneTransformations = bones;
 
     initializeOpenGLFunctions();
 
@@ -80,6 +79,7 @@ GeometryEngine::GeometryEngine(AnimatedModel animatedModel, QMatrix4x4* bones)
 
     // Initializes cube geometry and transfers it to VBOs
     initGeometry();
+
 }
 
 GeometryEngine::~GeometryEngine()
@@ -102,8 +102,8 @@ void GeometryEngine::initGeometry()
     for(unsigned int i = 0; i<nbrVertices; ++i){
 
         // Get the index for each bones influencing the vertex
-        GLuint bonesIndex[4] = {0};
-        GLfloat weight[4] = {0};
+        QVector4D bonesIndex = QVector4D(0,0,0,0);
+        QVector4D weight = QVector4D(0,0,0,0);
         for(int j = 0; j<modelVertices[i]->getBones().size(); ++j ){
             for(int k = 0; k<model.getBones().size(); ++k){
                 if(modelVertices[i]->getBones()[j]->getName() == model.getBones()[k]->getName() ){
@@ -114,18 +114,9 @@ void GeometryEngine::initGeometry()
 
         }
 
-        //A passer sur le shader
-        QVector4D vertexPosition = QVector4D(modelVertices[i]->getPosition().x(), modelVertices[i]->getPosition().y(), modelVertices[i]->getPosition().z(), 0.0);
-        QVector4D newVertex = (boneTransformations[bonesIndex[0]] * vertexPosition) * weight[0];
 
-        for(int i = 1; i<4; ++i){
-            newVertex = (boneTransformations[bonesIndex[i]] * vertexPosition) * weight[i] + newVertex;
+        vertices[i] = {modelVertices[i]->getPosition(), modelVertices[i]->getTextureCoords(), bonesIndex, weight };
 
-        }
-
-        //vertices[i] = {modelVertices[i]->getPosition(), modelVertices[i]->getTextureCoords(), bonesIndex, weight };
-
-        vertices[i] = {QVector3D(newVertex.x(),newVertex.y(), newVertex.z()), modelVertices[i]->getTextureCoords(), bonesIndex, weight };
     }
 
 
@@ -156,6 +147,8 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program)
 {
 
 
+
+
     // Tell OpenGL which VBOs to use
     arrayBuf.bind();
     indexBuf.bind();
@@ -175,7 +168,7 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program)
     // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
     int texLocation = program->attributeLocation("texCoord");
     program->enableAttributeArray(texLocation);
-    program->setAttributeBuffer(texLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
+    program->setAttributeBuffer(texLocation, GL_FLOAT, offset, 2, sizeof(VertexData));
 
     // Offset for bonesIndex
     offset += sizeof(QVector2D);
@@ -183,15 +176,16 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program)
     // Tell OpenGL programmable pipeline how to locate bonesIndex data
     int bonesInd = program->attributeLocation("bonesIndex");
     program->enableAttributeArray(bonesInd);
-    program->setAttributeBuffer(bonesInd, GL_UNSIGNED_INT, offset, 3, sizeof(VertexData));
+    program->setAttributeBuffer(bonesInd, GL_FLOAT, offset, 4, sizeof(VertexData));
 
     // Offset for weight
-    offset += sizeof(GLuint)*4;
+    offset += sizeof(QVector4D);
 
     // Tell OpenGL programmable pipeline how to locate weight data
     int weightInd = program->attributeLocation("weight");
     program->enableAttributeArray(weightInd);
-    program->setAttributeBuffer(weightInd, GL_FLOAT, offset, 3, sizeof(VertexData));
+    program->setAttributeBuffer(weightInd, GL_FLOAT, offset, 4, sizeof(VertexData));
+
 
     // Draw cube geometry using indices from VBO 1
     glDrawElements(GL_TRIANGLES, nbrIndices, GL_UNSIGNED_INT, 0);
