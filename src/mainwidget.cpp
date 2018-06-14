@@ -113,12 +113,12 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
             case Qt::Key_Z:
                 //Bouger cam en avant
                 cam.avancer();
-               // update();
+                update();
                 break;
             case Qt::Key_S:
                 //Bouger cam en arriere
                 cam.reculer();
-               // update();
+                update();
                 break;
 
                 break;
@@ -138,7 +138,7 @@ void MainWidget::mouseMoveEvent(QMouseEvent *event){
     QVector2D newMousePosition = QVector2D(event->localPos());
     QVector2D deltaVector =newMousePosition - mousePressPosition  ;
     cam.orienter(deltaVector.x(),deltaVector.y());
-    //update();
+    update();
 
 }
 
