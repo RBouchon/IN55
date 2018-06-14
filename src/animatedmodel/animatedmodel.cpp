@@ -104,8 +104,9 @@ int meshID = 0;
 
         }
         aiMatrix4x4 offsetMatrix = meshes[meshID]->mBones[j]->mOffsetMatrix;
+        //offsetMatrix.Transpose();
         aiMatrix4x4 transformMatrix = scene->mRootNode->FindNode(meshes[meshID]->mBones[j]->mName)->mTransformation;
-
+        //transformMatrix.Transpose();
         Bone* newBone = new Bone(QString(meshes[meshID]->mBones[j]->mName.data), bonesChilds,
                                  QMatrix4x4(transformMatrix.a1, transformMatrix.a2, transformMatrix.a3, transformMatrix.a4,
                                             transformMatrix.b1, transformMatrix.b2, transformMatrix.b3, transformMatrix.b4,
@@ -255,10 +256,15 @@ int meshID = 0;
     textureFileName = textureName;
     animations = animationsList;
 
-    globalTransform = QMatrix4x4(scene->mRootNode->mTransformation.a1, scene->mRootNode->mTransformation.a2, scene->mRootNode->mTransformation.a3, scene->mRootNode->mTransformation.a4,
-                                    scene->mRootNode->mTransformation.b1, scene->mRootNode->mTransformation.b2, scene->mRootNode->mTransformation.b3, scene->mRootNode->mTransformation.b4,
-                                    scene->mRootNode->mTransformation.c1, scene->mRootNode->mTransformation.c2, scene->mRootNode->mTransformation.c3, scene->mRootNode->mTransformation.c4,
-                                    scene->mRootNode->mTransformation.d1, scene->mRootNode->mTransformation.d2, scene->mRootNode->mTransformation.d3, scene->mRootNode->mTransformation.d4).inverted();
+
+    aiMatrix4x4 rootTransform = scene->mRootNode->mTransformation;
+    //rootTransform.Transpose();
+    globalTransform = QMatrix4x4(rootTransform.a1, rootTransform.a2, rootTransform.a3, rootTransform.a4,
+                                    rootTransform.b1, rootTransform.b2, rootTransform.b3, rootTransform.b4,
+                                    rootTransform.c1, rootTransform.c2, rootTransform.c3, rootTransform.c4,
+                                    rootTransform.d1, rootTransform.d2, rootTransform.d3, rootTransform.d4).inverted();
+
+
 
 }
 
@@ -271,7 +277,6 @@ QVector<QMatrix4x4> AnimatedModel::getTransformationsAtTime(double time){
 
 
     double animationTime = time*scene->mAnimations[0]->mDuration;
-std::cout<<"time = "<<time<<"---- animationTime = " << animationTime<<" -----duration = "<<scene->mAnimations[0]->mDuration<<std::endl;
 
     QMatrix4x4 identity;
     identity.setToIdentity();
@@ -287,15 +292,16 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
 
 
+    aiMatrix4x4 nodeTransformMatrix = node->mTransformation;
+   // nodeTransformMatrix.Transpose();
 
-    QMatrix4x4 nodeTransform = QMatrix4x4(node->mTransformation.a1, node->mTransformation.a2, node->mTransformation.a3 ,node->mTransformation.a4,
-                                          node->mTransformation.b1, node->mTransformation.b2, node->mTransformation.b3 ,node->mTransformation.b4,
-                                          node->mTransformation.c1, node->mTransformation.c2, node->mTransformation.c3 ,node->mTransformation.c4,
-                                          node->mTransformation.d1, node->mTransformation.d2, node->mTransformation.d3 ,node->mTransformation.d4);
+    QMatrix4x4 nodeTransform = QMatrix4x4(nodeTransformMatrix.a1, nodeTransformMatrix.a2, nodeTransformMatrix.a3 ,nodeTransformMatrix.a4,
+                                          nodeTransformMatrix.b1, nodeTransformMatrix.b2, nodeTransformMatrix.b3 ,nodeTransformMatrix.b4,
+                                          nodeTransformMatrix.c1, nodeTransformMatrix.c2, nodeTransformMatrix.c3 ,nodeTransformMatrix.c4,
+                                          nodeTransformMatrix.d1, nodeTransformMatrix.d2, nodeTransformMatrix.d3 ,nodeTransformMatrix.d4);
 
 
-    QMatrix4x4 transform;
-    transform.setToIdentity();
+
     for(int i = 0; i<scene->mAnimations[0]->mNumChannels; ++i){
         if(node->mName == scene->mAnimations[0]->mChannels[i]->mNodeName){
 
@@ -314,7 +320,7 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
     for(unsigned int i = 0; i<bones.size(); ++i){
         if(bones[i]->getName() == QString(node->mName.data)){
-            transformationList[i] =  transformation*bones[i]->getOffset();
+            transformationList[i] = transformation*bones[i]->getOffset();
 
         }
     }
@@ -418,11 +424,11 @@ QMatrix4x4 AnimatedModel::interpolateRotation(double time, aiNodeAnim* animation
 
     rotationMatrix = interpolatedRotation.GetMatrix();
 
-    QQuaternion q = QQuaternion(interpolatedRotation.w, interpolatedRotation.x, interpolatedRotation.y, interpolatedRotation.z);
+    QQuaternion q = QQuaternion(interpolatedRotation.w,interpolatedRotation.x, interpolatedRotation.y, interpolatedRotation.z);
     QMatrix4x4 R;
 
-    R.rotate(q);
 
+    R.rotate(q);
     return R;
 
 
