@@ -95,7 +95,6 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
         {
             case Qt::Key_F :
                 cam.changeFocusMireille();
-                update();
                 break;
             case Qt::Key_Left :
                 //Démarrer annimation gauche
@@ -113,12 +112,10 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
             case Qt::Key_Z:
                 //Bouger cam en avant
                 cam.avancer();
-                update();
                 break;
             case Qt::Key_S:
                 //Bouger cam en arriere
                 cam.reculer();
-                update();
                 break;
 
                 break;
