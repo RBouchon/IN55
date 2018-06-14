@@ -28,6 +28,8 @@ public:
    void orienterGauche(int rel);
    void orienterHaut(int rel);
    void orienterBas(int rel);
+   void zoom( int rel);
+   void dezoom( int rel);
 
 
 private:

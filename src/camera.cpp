@@ -5,10 +5,11 @@ Camera::Camera()
 {
     m_phi =0;
     m_theta =0;
-    camPosition = QVector3D(-55, 55, -210);
+    distance = 200;
+    camPosition = QVector3D(0, 0, distance);
     camTarget = PositionMireille;
     upVector = QVector3D(0.0,1.0,0.0);
-    distance = 200;
+
     focusMireille = false;
 
 }
@@ -60,6 +61,17 @@ void Camera::orienterBas(int rel){
     camPosition.setY(distance*sin(phiRadian));
     camPosition.setZ(distance* cos(phiRadian) * cos(thetaRadian));
 }
+
+void Camera::zoom( int rel){
+    distance -= rel;
+    camPosition = camPosition.normalized() * distance;
+}
+
+void Camera::dezoom(int rel){
+    distance += rel;
+    camPosition = camPosition.normalized() * distance;
+}
+
 
 void Camera::orienter(int xRel, int YRel){
     m_phi += -YRel * sensibiliteRota;
