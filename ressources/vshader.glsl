@@ -20,11 +20,10 @@ void main()
 
     vec4 newVertex;
     // Calculate vertex position with bones influences
-    newVertex = (boneTransformations[int(bonesIndex.x)] * vec4(vertexPosition, 0.0)) * weight.x;
-    newVertex = (boneTransformations[int(bonesIndex.y)] * vec4(vertexPosition, 0.0)) * weight.y + newVertex;
-    newVertex = (boneTransformations[int(bonesIndex.z)] * vec4(vertexPosition, 0.0)) * weight.z + newVertex;
-    newVertex = (boneTransformations[int(bonesIndex.w)] * vec4(vertexPosition, 0.0)) * weight.w + newVertex;
-
+    newVertex = (boneTransformations[int(bonesIndex.x)] * vec4(vertexPosition, 1.0)) * weight.x;
+    newVertex = (boneTransformations[int(bonesIndex.y)] * vec4(vertexPosition, 1.0)) * weight.y + newVertex;
+    newVertex = (boneTransformations[int(bonesIndex.z)] * vec4(vertexPosition, 1.0)) * weight.z + newVertex;
+    newVertex = (boneTransformations[int(bonesIndex.w)] * vec4(vertexPosition, 1.0)) * weight.w + newVertex;
 
     // Calculate vertex position in screen space
     gl_Position = mvp * vec4(newVertex.xyz, 1.0);
