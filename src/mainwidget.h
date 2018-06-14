@@ -88,7 +88,7 @@ protected:
     void initShaders();
     void initTextures(QString textureFileName);
     void initBonesTransforms(QVector<QMatrix4x4> bonesTransforms);
-
+    const int FPS = 60;
 
 private:
 

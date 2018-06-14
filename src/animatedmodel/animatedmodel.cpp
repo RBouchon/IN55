@@ -269,7 +269,7 @@ QVector<QMatrix4x4> AnimatedModel::getTransformationsAtTime(double time){
     QVector<QMatrix4x4> transformationList;
     transformationList.resize(bones.size());
 
-    double framePerSeconde = 30;
+
     double animationTime = time*scene->mAnimations[0]->mDuration;
 std::cout<<"time = "<<time<<"---- animationTime = " << animationTime<<" -----duration = "<<scene->mAnimations[0]->mDuration<<std::endl;
 

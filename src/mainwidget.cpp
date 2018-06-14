@@ -135,7 +135,7 @@ void MainWidget::mouseMoveEvent(QMouseEvent *event){
     QVector2D newMousePosition = QVector2D(event->localPos());
     QVector2D deltaVector =newMousePosition - mousePressPosition  ;
     cam.orienter(deltaVector.x(),deltaVector.y());
-    update();
+    //update();
 
 }
 
@@ -166,7 +166,7 @@ void MainWidget::timerEvent(QTimerEvent *)
 {
 
 
-    initBonesTransforms(bonesTransformationsList.at(frameNumber%30));
+    initBonesTransforms(bonesTransformationsList.at(frameNumber%FPS));
     ++frameNumber;
     update();
 
@@ -199,10 +199,6 @@ void MainWidget::initializeGL()
     model = AnimatedModel(fileName);
 
     initTextures(model.getTextureFileName());
-
-
-    unsigned int FPS = 30;
-
 
 
     for(unsigned int i = 0; i<FPS; ++i){
