@@ -93,6 +93,10 @@ void MainWidget::mousePressEvent(QMouseEvent *e)
 void MainWidget::keyPressEvent(QKeyEvent *event){
     switch ( event->key() )
         {
+            case Qt::Key_F :
+                cam.changeFocusMireille();
+                update();
+                break;
             case Qt::Key_Left :
                 //Démarrer annimation gauche
                 break;

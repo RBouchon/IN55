@@ -21,16 +21,18 @@ public:
     QVector3D getCam_position();
     QVector3D getCam_pointcible();
     QVector3D getCamUpVector();
+    void changeFocusMireille();
+    void getFocusOnMireille();
 private:
     QVector3D camPosition;
     QVector3D camTarget;
     QVector3D upVector;
-
+    QVector3D PositionMireille = QVector3D(0,0,-5);
     float m_phi;
     float m_theta;
     QVector3D camOrientation;
-
     float sensibiliteRota;
+    bool focusMireille;
 };
 
 #endif // CAMERA_H
