@@ -23,6 +23,7 @@ public:
     QVector3D getCamUpVector();
     void changeFocusMireille();
     void getFocusOnMireille();
+    void resetAngles();
 private:
     QVector3D camPosition;
     QVector3D camTarget;
