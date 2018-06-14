@@ -25,6 +25,7 @@ void main()
     newVertex = (boneTransformations[int(bonesIndex.z)] * vec4(vertexPosition, 1.0)) * weight.z + newVertex;
     newVertex = (boneTransformations[int(bonesIndex.w)] * vec4(vertexPosition, 1.0)) * weight.w + newVertex;
 
+
     // Calculate vertex position in screen space
     gl_Position = mvp * vec4(newVertex.xyz, 1.0);
     //gl_Position = mvp * vec4(vertexPosition, 1.0);

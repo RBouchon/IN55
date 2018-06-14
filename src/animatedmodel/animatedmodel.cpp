@@ -361,7 +361,7 @@ QMatrix4x4 AnimatedModel::interpolateTranslation(double time, aiNodeAnim* animat
     }
 
     float deltaTime = animationNode->mPositionKeys[nextPositionIndex].mTime - animationNode->mPositionKeys[positionIndex].mTime;
-    float factor = time - animationNode->mPositionKeys[positionIndex].mTime / deltaTime;
+    float factor = (time - animationNode->mPositionKeys[positionIndex].mTime) / deltaTime;
 
     aiVector3D start = animationNode->mPositionKeys[positionIndex].mValue;
     aiVector3D end = animationNode->mPositionKeys[nextPositionIndex].mValue;
@@ -409,7 +409,7 @@ QMatrix4x4 AnimatedModel::interpolateRotation(double time, aiNodeAnim* animation
     }
 
     float deltaTime = animationNode->mRotationKeys[nextRotationIndex].mTime - animationNode->mRotationKeys[rotationIndex].mTime;
-    float factor = time - animationNode->mRotationKeys[rotationIndex].mTime / deltaTime;
+    float factor = (time - animationNode->mRotationKeys[rotationIndex].mTime) / deltaTime;
 
 
     aiQuaternion start = animationNode->mRotationKeys[rotationIndex].mValue;
@@ -460,7 +460,7 @@ QMatrix4x4 AnimatedModel::interpolateScaling(double time, aiNodeAnim* animationN
     }
 
     float deltaTime = animationNode->mScalingKeys[nextPositionIndex].mTime - animationNode->mScalingKeys[positionIndex].mTime;
-    float factor = time - animationNode->mScalingKeys[positionIndex].mTime / deltaTime;
+    float factor = (time - animationNode->mScalingKeys[positionIndex].mTime) / deltaTime;
 
     aiVector3D start = animationNode->mScalingKeys[positionIndex].mValue;
     aiVector3D end = animationNode->mScalingKeys[nextPositionIndex].mValue;
