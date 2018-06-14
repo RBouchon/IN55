@@ -5,12 +5,12 @@ Camera::Camera()
 {
     m_phi =0;
     m_theta =0;
-    camPosition = QVector3D(-55, 55, 210);
+    camPosition = QVector3D(-55, 55, -210);
     camTarget = PositionMireille;
     upVector = QVector3D(0.0,1.0,0.0);
-    sensibiliteRota=0.001;
+
     focusMireille = false;
-    camOrientation = QVector3D(0, 1.74533e-05, 1);
+
 }
 
 Camera::~Camera(){
@@ -20,7 +20,7 @@ Camera::~Camera(){
 
 void Camera::orienter(int xRel, int YRel){
     m_phi += -YRel * sensibiliteRota;
-    m_theta += -xRel* sensibiliteRota;
+    m_theta += -xRel * sensibiliteRota;
     //qDebug() << newMousePosition;
     //qDebug() << mousePressPosition;
     //qDebug() << m_phi;
@@ -77,32 +77,46 @@ void Camera::orienter(int xRel, int YRel){
         camOrientation.setZ(sin(phiRadian));
     }
     qDebug() << camOrientation;
-    qDebug() << camTarget;
-    if(!focusMireille){
-       camTarget = camPosition + camOrientation;
-    }
 
-    else getFocusOnMireille();
-    qDebug() << camTarget;
+
+       camTarget = camPosition + camOrientation;
+
+
+
+
 }
 
 
 void Camera::avancer(){
 
+if(camOrientation.isNull()){
+    float phiRadian = m_phi * M_PI / 180;
+    float thetaRadian = m_theta * M_PI / 180;
+    camOrientation.setX(cos(phiRadian) * sin(thetaRadian));
+    camOrientation.setY(sin(phiRadian));
+    camOrientation.setZ(cos(phiRadian) * cos(thetaRadian));
+}
+
     camPosition = camPosition + camOrientation * 4;
-    if(!focusMireille){
+
        camTarget = camPosition + camOrientation;
-    }
-    else getFocusOnMireille();
+
 
 }
 void Camera::reculer(){
+    if(camOrientation.isNull()){
+        float phiRadian = m_phi * M_PI / 180;
+        float thetaRadian = m_theta * M_PI / 180;
+        camOrientation.setX(cos(phiRadian) * sin(thetaRadian));
+        camOrientation.setY(sin(phiRadian));
+        camOrientation.setZ(cos(phiRadian) * cos(thetaRadian));
+    }
 
     camPosition = camPosition - camOrientation * 4;
-    if(!focusMireille){
+
        camTarget = camPosition + camOrientation;
-    }
-    else getFocusOnMireille();
+
+
 }
 
 QVector3D Camera::getCam_position(){
@@ -118,11 +132,13 @@ QVector3D Camera::getCamUpVector(){
 void Camera::getFocusOnMireille(){
     camTarget = PositionMireille;
     resetAngles();
+    camOrientation = QVector3D(0.0,0.0,0.0);
 }
 
 void Camera::changeFocusMireille(){
-    focusMireille = !focusMireille;
+
     getFocusOnMireille();
+
 
 }
 

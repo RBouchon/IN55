@@ -133,7 +133,7 @@ void MainWidget::mouseMoveEvent(QMouseEvent *event){
     //qInfo("mouseMove");
     // Récupération des angles
     QVector2D newMousePosition = QVector2D(event->localPos());
-    QVector2D deltaVector =newMousePosition - mousePressPosition  ;
+    QVector2D deltaVector =newMousePosition - mousePressPosition;
     cam.orienter(deltaVector.x(),deltaVector.y());
     //update();
 
