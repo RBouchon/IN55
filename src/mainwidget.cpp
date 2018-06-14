@@ -101,12 +101,15 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
                 break;
             case Qt::Key_Right:
                 //Démarrer annimation droite
+
                 break;
             case Qt::Key_Down:
                 //Démarrer annimation bas
+        cam.dezoom(1.2);
                 break;
             case Qt::Key_Up:
                 //Démarrer annimation saut
+        cam.zoom(1.2);
                 break;
 
             case Qt::Key_Z:
@@ -285,7 +288,9 @@ void MainWidget::paintGL()
 //! [6]
     // Calculate model view transformation
     QMatrix4x4 matrix;
-    matrix.translate(0.0, 0.0, -5.0);
+
+    matrix.translate(0.0, -100.0, 0.0);
+
     matrix.rotate(rotation);
     //view.rotate((rotation));
 
