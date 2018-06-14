@@ -40,7 +40,7 @@ private:
     float m_phi;
     float m_theta;
     QVector3D camOrientation;
-    const float sensibiliteRota=0.001;;
+    const float sensibiliteRota=0.00000001;
     bool focusMireille;
     int distance;
 };

@@ -73,28 +73,41 @@ void Camera::dezoom(int rel){
 }
 
 
-void Camera::orienter(int xRel, int YRel){
-    m_phi += -YRel * sensibiliteRota;
-    m_theta += -xRel * sensibiliteRota;
+void Camera::orienter(int xRel, int yRel){
+    qDebug() << xRel;
+    qDebug() << yRel;
+
+        m_phi += -xRel * 1.2;
+
+
+        m_theta += yRel * 1.2;
+
+
+
     //qDebug() << newMousePosition;
     //qDebug() << mousePressPosition;
     //qDebug() << m_phi;
     //qDebug() << m_theta;
 
 
-    // Limitation de l'angle phi
 
-    if(m_phi > 89.0)
-        m_phi = 89.0;
 
-    else if(m_phi < -89.0)
-        m_phi = -89.0;
+
+
 
 
     // Conversion des angles en radian
 
     float phiRadian = m_phi * M_PI / 180;
     float thetaRadian = m_theta * M_PI / 180;
+
+
+
+    camPosition.setX(distance*sin(phiRadian) * cos(thetaRadian));
+    camPosition.setY(distance*sin(thetaRadian));
+    camPosition.setZ(distance* cos(phiRadian) * cos(thetaRadian));
+
+    /*
     if(camOrientation.isNull()){
         camOrientation = camTarget - camPosition;
         camOrientation = camOrientation.normalized();
@@ -144,7 +157,7 @@ void Camera::orienter(int xRel, int YRel){
        camTarget = camPosition + camOrientation;
 
 
-
+*/
 
 }
 

@@ -306,7 +306,7 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
             QMatrix4x4 R = interpolateRotation(time, scene->mAnimations[0]->mChannels[i]);
             QMatrix4x4 S = interpolateScaling(time, scene->mAnimations[0]->mChannels[i]);
 
-            nodeTransform =  T*R*S;
+            //nodeTransform =  T*R*S;
 
         }
     }

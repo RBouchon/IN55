@@ -138,7 +138,14 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
 }
 
 void MainWidget::wheelEvent(QWheelEvent *event){
+    int delta = event->delta();
 
+    if (delta > 0){
+        cam.zoom(3);
+    }
+    else{
+        cam.dezoom(3);
+    }
 }
 
 void MainWidget::mouseMoveEvent(QMouseEvent *event){
@@ -149,6 +156,8 @@ void MainWidget::mouseMoveEvent(QMouseEvent *event){
     QVector2D deltaVector =newMousePosition - mousePressPosition;
     cam.orienter(deltaVector.x(),deltaVector.y());
     //update();
+
+    mousePressPosition = newMousePosition;
 
 }
 
