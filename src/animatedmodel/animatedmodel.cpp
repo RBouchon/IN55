@@ -63,7 +63,6 @@ AnimatedModel::~AnimatedModel(){
 void AnimatedModel::loadModelFromFile(QString fileName){
 
 
-int meshID = 0;
     // If the import failed, report it
 
     //Get model informations from the scene
@@ -76,15 +75,15 @@ int meshID = 0;
     QVector<Vertex*> verticesList;
     QVector<unsigned int> indicesList;
 
-    for(unsigned int i = 0; i<meshes[meshID]->mNumVertices; ++i){
+    for(unsigned int i = 0; i<meshes[0]->mNumVertices; ++i){
 
         //Initialize list of bones and weight for this vertex
         QVector<Bone*> vertexBones;
         QVector<float> weight;
 
-        Vertex* newVertex = new Vertex(QVector3D(meshes[meshID]->mVertices[i].x,meshes[meshID]->mVertices[i].y, meshes[meshID]->mVertices[i].z),
-                                       QVector2D(meshes[meshID]->mTextureCoords[0][i].x,meshes[meshID]->mTextureCoords[0][i].y),
-                                       QVector3D(meshes[meshID]->mNormals[i].x, meshes[meshID]->mNormals[i].y, meshes[meshID]->mNormals[i].z),
+        Vertex* newVertex = new Vertex(QVector3D(meshes[0]->mVertices[i].x,meshes[0]->mVertices[i].y, meshes[0]->mVertices[i].z),
+                                       QVector2D(meshes[0]->mTextureCoords[0][i].x,meshes[0]->mTextureCoords[0][i].y),
+                                       QVector3D(meshes[0]->mNormals[i].x, meshes[0]->mNormals[i].y, meshes[0]->mNormals[i].z),
                                        vertexBones, weight);
         verticesList.append(newVertex);
 
@@ -96,18 +95,18 @@ int meshID = 0;
     //Create list of bones
     QVector<Bone*> bonesList;
 
-    for(unsigned int j = 0; j<meshes[meshID]->mNumBones; ++j){ //for each bone, create a list of boneschilds
+    for(unsigned int j = 0; j<meshes[0]->mNumBones; ++j){ //for each bone, create a list of boneschilds
 
         QVector<QString> bonesChilds;
-        for(unsigned int k = 0; k<scene->mRootNode->FindNode(meshes[meshID]->mBones[j]->mName)->mNumChildren; ++k){ //Get the name of each childrens
-            bonesChilds.append(QString(scene->mRootNode->FindNode(meshes[meshID]->mBones[j]->mName)->mChildren[k]->mName.data));
+        for(unsigned int k = 0; k<scene->mRootNode->FindNode(meshes[0]->mBones[j]->mName)->mNumChildren; ++k){ //Get the name of each childrens
+            bonesChilds.append(QString(scene->mRootNode->FindNode(meshes[0]->mBones[j]->mName)->mChildren[k]->mName.data));
 
         }
-        aiMatrix4x4 offsetMatrix = meshes[meshID]->mBones[j]->mOffsetMatrix;
+        aiMatrix4x4 offsetMatrix = meshes[0]->mBones[j]->mOffsetMatrix;
 
-        aiMatrix4x4 transformMatrix = scene->mRootNode->FindNode(meshes[meshID]->mBones[j]->mName)->mTransformation;
+        aiMatrix4x4 transformMatrix = scene->mRootNode->FindNode(meshes[0]->mBones[j]->mName)->mTransformation;
 
-        Bone* newBone = new Bone(QString(meshes[meshID]->mBones[j]->mName.data), bonesChilds,
+        Bone* newBone = new Bone(QString(meshes[0]->mBones[j]->mName.data), bonesChilds,
                                  QMatrix4x4(transformMatrix.a1, transformMatrix.a2, transformMatrix.a3, transformMatrix.a4,
                                             transformMatrix.b1, transformMatrix.b2, transformMatrix.b3, transformMatrix.b4,
                                             transformMatrix.c1, transformMatrix.c2, transformMatrix.c3, transformMatrix.c4,
@@ -121,10 +120,10 @@ int meshID = 0;
 
         //Set the bones and weights on each vertices affected by this bone
 
-        for(unsigned int k = 0; k<meshes[meshID]->mBones[j]->mNumWeights; ++k){
+        for(unsigned int k = 0; k<meshes[0]->mBones[j]->mNumWeights; ++k){
 
-            verticesList[meshes[meshID]->mBones[j]->mWeights[k].mVertexId]->getBones().append(newBone);
-            verticesList[meshes[meshID]->mBones[j]->mWeights[k].mVertexId]->getBonesWeight().append(meshes[meshID]->mBones[j]->mWeights[k].mWeight);
+            verticesList[meshes[0]->mBones[j]->mWeights[k].mVertexId]->getBones().append(newBone);
+            verticesList[meshes[0]->mBones[j]->mWeights[k].mVertexId]->getBonesWeight().append(meshes[0]->mBones[j]->mWeights[k].mWeight);
 
         }
     }
@@ -134,11 +133,11 @@ int meshID = 0;
 
 
     //Get list of indices (faces with triangles primitive)
-    for(unsigned int i = 0; i<meshes[meshID]->mNumFaces; ++i){
+    for(unsigned int i = 0; i<meshes[0]->mNumFaces; ++i){
 
-        indicesList.append(meshes[meshID]->mFaces[i].mIndices[0]);
-        indicesList.append(meshes[meshID]->mFaces[i].mIndices[1]);
-        indicesList.append(meshes[meshID]->mFaces[i].mIndices[2]);
+        indicesList.append(meshes[0]->mFaces[i].mIndices[0]);
+        indicesList.append(meshes[0]->mFaces[i].mIndices[1]);
+        indicesList.append(meshes[0]->mFaces[i].mIndices[2]);
 
     }
 
@@ -297,7 +296,7 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
 
 
-    for(int i = 0; i<scene->mAnimations[0]->mNumChannels; ++i){
+    for(unsigned int i = 0; i<scene->mAnimations[0]->mNumChannels; ++i){
         if(node->mName == scene->mAnimations[0]->mChannels[i]->mNodeName){
 
 

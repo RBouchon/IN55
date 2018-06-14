@@ -94,7 +94,7 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
     switch ( event->key() )
         {
             case Qt::Key_F :
-                cam.changeFocusMireille();
+                cam.changeFocusModel();
                 break;
             case Qt::Key_Left :
                 //Démarrer annimation gauche
@@ -105,11 +105,11 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
                 break;
             case Qt::Key_Down:
                 //Démarrer annimation bas
-        cam.dezoom(1.2);
+                cam.dezoom(1.2);
                 break;
             case Qt::Key_Up:
                 //Démarrer annimation saut
-        cam.zoom(1.2);
+                cam.zoom(1.2);
                 break;
 
             case Qt::Key_Z:
@@ -151,26 +151,6 @@ void MainWidget::mouseMoveEvent(QMouseEvent *event){
 
 }
 
-void MainWidget::mouseReleaseEvent(QMouseEvent *e)
-{
-    /*
-    qInfo("rota");
-    // Mouse release position - mouse press position
-    QVector2D diff = QVector2D(e->localPos()) - mousePressPosition;
-
-    // Rotation axis is perpendicular to the mouse position difference
-    // vector
-    QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
-
-    // Accelerate angular speed relative to the length of the mouse sweep
-    qreal acc = diff.length() / 100.0;
-
-    // Calculate new rotation axis as weighted sum
-    rotationAxis = (rotationAxis * angularSpeed + n * acc).normalized();
-    rotationAxis = QVector3D(0,1,0);
-    // Increase angular speed
-    angularSpeed += acc;*/
-}
 //! [0]
 
 //! [1]

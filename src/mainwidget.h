@@ -76,7 +76,6 @@ public:
 
 protected:
     void mousePressEvent(QMouseEvent *e) override;
-    void mouseReleaseEvent(QMouseEvent *e) override;
     void keyPressEvent(QKeyEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void timerEvent(QTimerEvent *e) override;
@@ -88,7 +87,7 @@ protected:
     void initShaders();
     void initTextures(QString textureFileName);
     void initBonesTransforms(QVector<QMatrix4x4> bonesTransforms);
-    const int FPS = 60;
+    const unsigned int FPS = 60;
 
 private:
 
