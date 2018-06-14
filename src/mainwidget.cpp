@@ -111,12 +111,22 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
 
             case Qt::Key_Z:
                 //Bouger cam en avant
-                cam.avancer();
+                //cam.avancer();
+            cam.orienterHaut(2);
                 break;
             case Qt::Key_S:
                 //Bouger cam en arriere
-                cam.reculer();
+                //cam.reculer();
+        cam.orienterBas(2);
                 break;
+    case Qt::Key_D:
+        //Bouger cam en arriere
+        cam.orienterDroite(2);
+        break;
+    case Qt::Key_Q:
+        //Bouger cam en arriere
+        cam.orienterGauche(2);
+        break;
 
                 break;
             default:
@@ -285,7 +295,7 @@ void MainWidget::paintGL()
 //! [6]
     // Calculate model view transformation
     QMatrix4x4 matrix;
-    matrix.translate(0.0, 0.0, -5.0);
+    matrix.translate(0.0, 0.0, 0.0);
     matrix.rotate(rotation);
     //view.rotate((rotation));
 
