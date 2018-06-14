@@ -145,7 +145,7 @@ void MainWidget::mouseMoveEvent(QMouseEvent *event){
     QVector2D newMousePosition = QVector2D(event->localPos());
     QVector2D deltaVector =newMousePosition - mousePressPosition;
     cam.orienter(deltaVector.x(),deltaVector.y());
-    //update();
+
 
     mousePressPosition = newMousePosition;
 

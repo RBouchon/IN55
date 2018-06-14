@@ -167,7 +167,7 @@ void Camera::avancer(){
 if(camOrientation.isNull()){
     camOrientation = camTarget - camPosition;
     camOrientation = camOrientation.normalized();
-    qDebug() << camOrientation;
+
 }
 
     camPosition = camPosition + camOrientation * 4;
@@ -180,7 +180,7 @@ void Camera::reculer(){
     if(camOrientation.isNull()){
         camOrientation = camTarget - camPosition;
         camOrientation = camOrientation.normalized();
-        qDebug() << camOrientation;
+
     }
 
     camPosition = camPosition - camOrientation * 4;

@@ -104,9 +104,9 @@ int meshID = 0;
 
         }
         aiMatrix4x4 offsetMatrix = meshes[meshID]->mBones[j]->mOffsetMatrix;
-        //offsetMatrix.Transpose();
+
         aiMatrix4x4 transformMatrix = scene->mRootNode->FindNode(meshes[meshID]->mBones[j]->mName)->mTransformation;
-        //transformMatrix.Transpose();
+
         Bone* newBone = new Bone(QString(meshes[meshID]->mBones[j]->mName.data), bonesChilds,
                                  QMatrix4x4(transformMatrix.a1, transformMatrix.a2, transformMatrix.a3, transformMatrix.a4,
                                             transformMatrix.b1, transformMatrix.b2, transformMatrix.b3, transformMatrix.b4,
@@ -305,7 +305,7 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
             QMatrix4x4 R = interpolateRotation(time, scene->mAnimations[0]->mChannels[i]);
             QMatrix4x4 S = interpolateScaling(time, scene->mAnimations[0]->mChannels[i]);
 
-            //nodeTransform =  T*R*S;
+            nodeTransform =  T*R*S;
 
         }
     }
