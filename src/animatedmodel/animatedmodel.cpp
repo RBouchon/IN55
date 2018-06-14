@@ -277,7 +277,6 @@ QVector<QMatrix4x4> AnimatedModel::getTransformationsAtTime(double time){
 
     double animationTime = time*scene->mAnimations[0]->mDuration;
 
-
     calculateBonesTransformations(animationTime, transformationList, globalTransform, scene->mRootNode );
 
 
@@ -352,6 +351,7 @@ QMatrix4x4 AnimatedModel::interpolateTranslation(double time, aiNodeAnim* animat
     for (unsigned int i = 0 ; i < animationNode->mNumPositionKeys - 1 ; ++i) {
         if (time < animationNode->mPositionKeys[i + 1].mTime) {
             positionIndex = i;
+            break;
         }
     }
 
@@ -367,7 +367,6 @@ QMatrix4x4 AnimatedModel::interpolateTranslation(double time, aiNodeAnim* animat
     aiVector3D end = animationNode->mPositionKeys[nextPositionIndex].mValue;
     aiVector3D delta = end - start;
     aiVector3D interpolatedVector = start + factor * delta;
-
     QMatrix4x4 T;
 
     T.translate(interpolatedVector.x, interpolatedVector.y, interpolatedVector.z);
@@ -400,6 +399,7 @@ QMatrix4x4 AnimatedModel::interpolateRotation(double time, aiNodeAnim* animation
     for (unsigned int i = 0 ; i < animationNode->mNumRotationKeys - 1 ; ++i) {
         if (time < animationNode->mRotationKeys[i + 1].mTime) {
             rotationIndex = i;
+            break;
         }
     }
 
@@ -451,6 +451,7 @@ QMatrix4x4 AnimatedModel::interpolateScaling(double time, aiNodeAnim* animationN
     for (unsigned int i = 0 ; i < animationNode->mNumScalingKeys - 1 ; ++i) {
         if (time < animationNode->mScalingKeys[i + 1].mTime) {
             positionIndex = i;
+            break;
         }
     }
 
