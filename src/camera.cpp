@@ -1,13 +1,16 @@
 #include "camera.h"
+#include "iostream"
 
 Camera::Camera()
 {
     m_phi =0;
     m_theta =0;
-    camPosition = QVector3D(0.0,0.0,-40);
+    camPosition = QVector3D(-55, 55, 210);
     camTarget = PositionMireille;
     upVector = QVector3D(0.0,1.0,0.0);
     sensibiliteRota=0.001;
+    focusMireille = false;
+    camOrientation = QVector3D(0, 1.74533e-05, 1);
 }
 
 Camera::~Camera(){
@@ -73,14 +76,19 @@ void Camera::orienter(int xRel, int YRel){
         camOrientation.setY(cos(phiRadian) * sin(thetaRadian));
         camOrientation.setZ(sin(phiRadian));
     }
+    qDebug() << camOrientation;
+    qDebug() << camTarget;
     if(!focusMireille){
        camTarget = camPosition + camOrientation;
     }
+
     else getFocusOnMireille();
+    qDebug() << camTarget;
 }
 
 
 void Camera::avancer(){
+
     camPosition = camPosition + camOrientation * 4;
     if(!focusMireille){
        camTarget = camPosition + camOrientation;
@@ -89,6 +97,7 @@ void Camera::avancer(){
 
 }
 void Camera::reculer(){
+
     camPosition = camPosition - camOrientation * 4;
     if(!focusMireille){
        camTarget = camPosition + camOrientation;
@@ -108,8 +117,16 @@ QVector3D Camera::getCamUpVector(){
 
 void Camera::getFocusOnMireille(){
     camTarget = PositionMireille;
+    resetAngles();
 }
 
 void Camera::changeFocusMireille(){
-    focusMireille = ! focusMireille;
+    focusMireille = !focusMireille;
+    getFocusOnMireille();
+
+}
+
+void Camera::resetAngles(){
+    m_phi = 0;
+    m_theta = 0;
 }
