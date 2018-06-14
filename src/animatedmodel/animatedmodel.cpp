@@ -104,8 +104,9 @@ int meshID = 0;
 
         }
         aiMatrix4x4 offsetMatrix = meshes[meshID]->mBones[j]->mOffsetMatrix;
+        //offsetMatrix.Transpose();
         aiMatrix4x4 transformMatrix = scene->mRootNode->FindNode(meshes[meshID]->mBones[j]->mName)->mTransformation;
-
+        //transformMatrix.Transpose();
         Bone* newBone = new Bone(QString(meshes[meshID]->mBones[j]->mName.data), bonesChilds,
                                  QMatrix4x4(transformMatrix.a1, transformMatrix.a2, transformMatrix.a3, transformMatrix.a4,
                                             transformMatrix.b1, transformMatrix.b2, transformMatrix.b3, transformMatrix.b4,
@@ -255,10 +256,14 @@ int meshID = 0;
     textureFileName = textureName;
     animations = animationsList;
 
-    globalTransform = QMatrix4x4(scene->mRootNode->mTransformation.a1, scene->mRootNode->mTransformation.a2, scene->mRootNode->mTransformation.a3, scene->mRootNode->mTransformation.a4,
-                                    scene->mRootNode->mTransformation.b1, scene->mRootNode->mTransformation.b2, scene->mRootNode->mTransformation.b3, scene->mRootNode->mTransformation.b4,
-                                    scene->mRootNode->mTransformation.c1, scene->mRootNode->mTransformation.c2, scene->mRootNode->mTransformation.c3, scene->mRootNode->mTransformation.c4,
-                                    scene->mRootNode->mTransformation.d1, scene->mRootNode->mTransformation.d2, scene->mRootNode->mTransformation.d3, scene->mRootNode->mTransformation.d4).inverted();
+
+    aiMatrix4x4 rootTransform = scene->mRootNode->mTransformation;
+    globalTransform = QMatrix4x4(rootTransform.a1, rootTransform.a2, rootTransform.a3, rootTransform.a4,
+                                    rootTransform.b1, rootTransform.b2, rootTransform.b3, rootTransform.b4,
+                                    rootTransform.c1, rootTransform.c2, rootTransform.c3, rootTransform.c4,
+                                    rootTransform.d1, rootTransform.d2, rootTransform.d3, rootTransform.d4);
+
+
 
 }
 
@@ -271,13 +276,9 @@ QVector<QMatrix4x4> AnimatedModel::getTransformationsAtTime(double time){
 
 
     double animationTime = time*scene->mAnimations[0]->mDuration;
-std::cout<<"time = "<<time<<"---- animationTime = " << animationTime<<" -----duration = "<<scene->mAnimations[0]->mDuration<<std::endl;
-
-    QMatrix4x4 identity;
-    identity.setToIdentity();
 
 
-    calculateBonesTransformations(animationTime, transformationList, identity, scene->mRootNode );
+    calculateBonesTransformations(animationTime, transformationList, globalTransform, scene->mRootNode );
 
 
     return transformationList;
@@ -287,15 +288,16 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
 
 
-
-    QMatrix4x4 nodeTransform = QMatrix4x4(node->mTransformation.a1, node->mTransformation.a2, node->mTransformation.a3 ,node->mTransformation.a4,
-                                          node->mTransformation.b1, node->mTransformation.b2, node->mTransformation.b3 ,node->mTransformation.b4,
-                                          node->mTransformation.c1, node->mTransformation.c2, node->mTransformation.c3 ,node->mTransformation.c4,
-                                          node->mTransformation.d1, node->mTransformation.d2, node->mTransformation.d3 ,node->mTransformation.d4);
+    aiMatrix4x4 nodeTransformMatrix = node->mTransformation;
 
 
-    QMatrix4x4 transform;
-    transform.setToIdentity();
+    QMatrix4x4 nodeTransform = QMatrix4x4(nodeTransformMatrix.a1, nodeTransformMatrix.a2, nodeTransformMatrix.a3 ,nodeTransformMatrix.a4,
+                                          nodeTransformMatrix.b1, nodeTransformMatrix.b2, nodeTransformMatrix.b3 ,nodeTransformMatrix.b4,
+                                          nodeTransformMatrix.c1, nodeTransformMatrix.c2, nodeTransformMatrix.c3 ,nodeTransformMatrix.c4,
+                                          nodeTransformMatrix.d1, nodeTransformMatrix.d2, nodeTransformMatrix.d3 ,nodeTransformMatrix.d4);
+
+
+
     for(int i = 0; i<scene->mAnimations[0]->mNumChannels; ++i){
         if(node->mName == scene->mAnimations[0]->mChannels[i]->mNodeName){
 
@@ -314,7 +316,7 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
     for(unsigned int i = 0; i<bones.size(); ++i){
         if(bones[i]->getName() == QString(node->mName.data)){
-            transformationList[i] =  transformation*bones[i]->getOffset();
+            transformationList[i] = globalTransform.inverted()*transformation*bones[i]->getOffset();
 
         }
     }
@@ -347,7 +349,7 @@ QMatrix4x4 AnimatedModel::interpolateTranslation(double time, aiNodeAnim* animat
     }
 
     unsigned int positionIndex=0;
-    for (unsigned int i = 0 ; i < animationNode->mNumPositionKeys - 1 ; i++) {
+    for (unsigned int i = 0 ; i < animationNode->mNumPositionKeys - 1 ; ++i) {
         if (time < animationNode->mPositionKeys[i + 1].mTime) {
             positionIndex = i;
         }
@@ -359,7 +361,7 @@ QMatrix4x4 AnimatedModel::interpolateTranslation(double time, aiNodeAnim* animat
     }
 
     float deltaTime = animationNode->mPositionKeys[nextPositionIndex].mTime - animationNode->mPositionKeys[positionIndex].mTime;
-    float factor = time - animationNode->mPositionKeys[positionIndex].mTime / deltaTime;
+    float factor = (time - animationNode->mPositionKeys[positionIndex].mTime) / deltaTime;
 
     aiVector3D start = animationNode->mPositionKeys[positionIndex].mValue;
     aiVector3D end = animationNode->mPositionKeys[nextPositionIndex].mValue;
@@ -395,7 +397,7 @@ QMatrix4x4 AnimatedModel::interpolateRotation(double time, aiNodeAnim* animation
     }
 
     unsigned int rotationIndex = 0;
-    for (unsigned int i = 0 ; i < animationNode->mNumRotationKeys - 1 ; i++) {
+    for (unsigned int i = 0 ; i < animationNode->mNumRotationKeys - 1 ; ++i) {
         if (time < animationNode->mRotationKeys[i + 1].mTime) {
             rotationIndex = i;
         }
@@ -407,7 +409,7 @@ QMatrix4x4 AnimatedModel::interpolateRotation(double time, aiNodeAnim* animation
     }
 
     float deltaTime = animationNode->mRotationKeys[nextRotationIndex].mTime - animationNode->mRotationKeys[rotationIndex].mTime;
-    float factor = time - animationNode->mRotationKeys[rotationIndex].mTime / deltaTime;
+    float factor = (time - animationNode->mRotationKeys[rotationIndex].mTime) / deltaTime;
 
 
     aiQuaternion start = animationNode->mRotationKeys[rotationIndex].mValue;
@@ -418,11 +420,11 @@ QMatrix4x4 AnimatedModel::interpolateRotation(double time, aiNodeAnim* animation
 
     rotationMatrix = interpolatedRotation.GetMatrix();
 
-    QQuaternion q = QQuaternion(interpolatedRotation.w, interpolatedRotation.x, interpolatedRotation.y, interpolatedRotation.z);
+    QQuaternion q = QQuaternion(interpolatedRotation.w,interpolatedRotation.x, interpolatedRotation.y, interpolatedRotation.z);
     QMatrix4x4 R;
 
-    R.rotate(q);
 
+    R.rotate(q);
     return R;
 
 
@@ -446,7 +448,7 @@ QMatrix4x4 AnimatedModel::interpolateScaling(double time, aiNodeAnim* animationN
     }
 
     unsigned int positionIndex = 0;
-    for (unsigned int i = 0 ; i < animationNode->mNumScalingKeys - 1 ; i++) {
+    for (unsigned int i = 0 ; i < animationNode->mNumScalingKeys - 1 ; ++i) {
         if (time < animationNode->mScalingKeys[i + 1].mTime) {
             positionIndex = i;
         }
@@ -458,7 +460,7 @@ QMatrix4x4 AnimatedModel::interpolateScaling(double time, aiNodeAnim* animationN
     }
 
     float deltaTime = animationNode->mScalingKeys[nextPositionIndex].mTime - animationNode->mScalingKeys[positionIndex].mTime;
-    float factor = time - animationNode->mScalingKeys[positionIndex].mTime / deltaTime;
+    float factor = (time - animationNode->mScalingKeys[positionIndex].mTime) / deltaTime;
 
     aiVector3D start = animationNode->mScalingKeys[positionIndex].mValue;
     aiVector3D end = animationNode->mScalingKeys[nextPositionIndex].mValue;
