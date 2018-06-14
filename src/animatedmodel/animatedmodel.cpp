@@ -258,11 +258,10 @@ int meshID = 0;
 
 
     aiMatrix4x4 rootTransform = scene->mRootNode->mTransformation;
-    //rootTransform.Transpose();
     globalTransform = QMatrix4x4(rootTransform.a1, rootTransform.a2, rootTransform.a3, rootTransform.a4,
                                     rootTransform.b1, rootTransform.b2, rootTransform.b3, rootTransform.b4,
                                     rootTransform.c1, rootTransform.c2, rootTransform.c3, rootTransform.c4,
-                                    rootTransform.d1, rootTransform.d2, rootTransform.d3, rootTransform.d4).inverted();
+                                    rootTransform.d1, rootTransform.d2, rootTransform.d3, rootTransform.d4);
 
 
 
@@ -278,11 +277,8 @@ QVector<QMatrix4x4> AnimatedModel::getTransformationsAtTime(double time){
 
     double animationTime = time*scene->mAnimations[0]->mDuration;
 
-    QMatrix4x4 identity;
-    identity.setToIdentity();
 
-
-    calculateBonesTransformations(animationTime, transformationList, identity, scene->mRootNode );
+    calculateBonesTransformations(animationTime, transformationList, globalTransform, scene->mRootNode );
 
 
     return transformationList;
@@ -293,7 +289,7 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
 
     aiMatrix4x4 nodeTransformMatrix = node->mTransformation;
-   // nodeTransformMatrix.Transpose();
+
 
     QMatrix4x4 nodeTransform = QMatrix4x4(nodeTransformMatrix.a1, nodeTransformMatrix.a2, nodeTransformMatrix.a3 ,nodeTransformMatrix.a4,
                                           nodeTransformMatrix.b1, nodeTransformMatrix.b2, nodeTransformMatrix.b3 ,nodeTransformMatrix.b4,
@@ -320,7 +316,7 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
     for(unsigned int i = 0; i<bones.size(); ++i){
         if(bones[i]->getName() == QString(node->mName.data)){
-            transformationList[i] = transformation*bones[i]->getOffset();
+            transformationList[i] = globalTransform.inverted()*transformation*bones[i]->getOffset();
 
         }
     }
@@ -353,7 +349,7 @@ QMatrix4x4 AnimatedModel::interpolateTranslation(double time, aiNodeAnim* animat
     }
 
     unsigned int positionIndex=0;
-    for (unsigned int i = 0 ; i < animationNode->mNumPositionKeys - 1 ; i++) {
+    for (unsigned int i = 0 ; i < animationNode->mNumPositionKeys - 1 ; ++i) {
         if (time < animationNode->mPositionKeys[i + 1].mTime) {
             positionIndex = i;
         }
@@ -401,7 +397,7 @@ QMatrix4x4 AnimatedModel::interpolateRotation(double time, aiNodeAnim* animation
     }
 
     unsigned int rotationIndex = 0;
-    for (unsigned int i = 0 ; i < animationNode->mNumRotationKeys - 1 ; i++) {
+    for (unsigned int i = 0 ; i < animationNode->mNumRotationKeys - 1 ; ++i) {
         if (time < animationNode->mRotationKeys[i + 1].mTime) {
             rotationIndex = i;
         }
@@ -452,7 +448,7 @@ QMatrix4x4 AnimatedModel::interpolateScaling(double time, aiNodeAnim* animationN
     }
 
     unsigned int positionIndex = 0;
-    for (unsigned int i = 0 ; i < animationNode->mNumScalingKeys - 1 ; i++) {
+    for (unsigned int i = 0 ; i < animationNode->mNumScalingKeys - 1 ; ++i) {
         if (time < animationNode->mScalingKeys[i + 1].mTime) {
             positionIndex = i;
         }
