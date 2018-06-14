@@ -200,7 +200,7 @@ void MainWidget::initializeGL()
     initTextures(model.getTextureFileName());
 
 
-    int FPS = 30;
+    unsigned int FPS = 30;
 
 
 

@@ -255,10 +255,6 @@ int meshID = 0;
     textureFileName = textureName;
     animations = animationsList;
 
-    globalTransform = QMatrix4x4(scene->mRootNode->mTransformation.a1, scene->mRootNode->mTransformation.a2, scene->mRootNode->mTransformation.a3, scene->mRootNode->mTransformation.a4,
-                                    scene->mRootNode->mTransformation.b1, scene->mRootNode->mTransformation.b2, scene->mRootNode->mTransformation.b3, scene->mRootNode->mTransformation.b4,
-                                    scene->mRootNode->mTransformation.c1, scene->mRootNode->mTransformation.c2, scene->mRootNode->mTransformation.c3, scene->mRootNode->mTransformation.c4,
-   scene->mRootNode->mTransformation.d1, scene->mRootNode->mTransformation.d2, scene->mRootNode->mTransformation.d3, scene->mRootNode->mTransformation.d4);
 
 }
 
@@ -301,11 +297,11 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
 
             QMatrix4x4 T = interpolateTranslation(time, scene->mAnimations[0]->mChannels[i]);
-            QMatrix4x4 R = interpolateTranslation(time, scene->mAnimations[0]->mChannels[i]);
-            QMatrix4x4 S = interpolateTranslation(time, scene->mAnimations[0]->mChannels[i]);
+            QMatrix4x4 R = interpolateRotation(time, scene->mAnimations[0]->mChannels[i]);
+            QMatrix4x4 S = interpolateScaling(time, scene->mAnimations[0]->mChannels[i]);
 
 
-            //nodeTransform =  T*R*S;
+            nodeTransform =  T*R*S;
         }
     }
 
