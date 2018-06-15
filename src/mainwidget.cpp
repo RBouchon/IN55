@@ -106,9 +106,7 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
             }
 
                 break;
-            case Qt::Key_F :
-                cam.changeFocusModel();
-                break;
+
             case Qt::Key_W :
             if(animationState == QString("idle")){
                 animationState = QString("walk");
@@ -122,32 +120,7 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
                     frameNumber=0;
                 }
                 break;
-            case Qt::Key_Left :
-                //Démarrer annimation gauche
-                break;
-            case Qt::Key_Right:
-                //Démarrer annimation droite
 
-                break;
-            case Qt::Key_Down:
-                //Démarrer annimation bas
-                cam.dezoom(1.2);
-                break;
-            case Qt::Key_Up:
-                //Démarrer annimation saut
-                cam.zoom(1.2);
-                break;
-
-            case Qt::Key_Z:
-                //Bouger cam en avant
-                cam.avancer();
-                break;
-            case Qt::Key_S:
-                //Bouger cam en arriere
-                cam.reculer();
-                break;
-
-                break;
             default:
                 break;
         }
@@ -398,6 +371,6 @@ void MainWidget::paintGL()
 
 
 
-    // Draw cube geometry
+
     geometries->drawGeometry(&program);
 }
