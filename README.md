@@ -4,7 +4,7 @@ Animation d'un personnage en 3D
 
 # Mode d’emploi
 
-Pour exécuter notre projet, il suffit de lancer l’executable application.exe situé dans le dossier release. Le projet peut également être recompiler à partir du code source, en utilisant QtCreator. 
+Pour exécuter l'application, il suffit de lancer l’executable application.exe situé dans le dossier release. Le projet peut également être recompiler à partir du code source, en utilisant QtCreator. 
 L’application propose alors à l’utilisateur de sélectionner un fichier de modèle 3D au format COLLADA (.dae). Il faut alors sélectionner le fichier Mireille.dae qui se trouve dans modeles/Mireille.dae. Les autres fichiers (Mireille_walk.dae, Mireille_jump.dae...etc) sont les fichiers d’animations associés au modèle 3D : ils sont automatiquement chargés avec le fichier Mireille.dae.  
 Ensuite il suffit d’appuyer sur les touches du clavier pour déclencher les animations souhaitées : 
 
