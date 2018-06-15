@@ -28,7 +28,6 @@ void main()
 
     // Calculate vertex position in screen space
     gl_Position = mvp * vec4(newVertex.xyz, 1.0);
-    //gl_Position = mvp * vec4(vertexPosition, 1.0);
 
     texCoord0 = texCoord;
 }
