@@ -66,6 +66,8 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QFileDialog>
+#include <QSound>
+
 class GeometryEngine;
 
 class MainWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -89,6 +91,7 @@ protected:
     void initShaders();
     void initTextures(QString textureFileName);
     void initBonesTransforms(QVector<QMatrix4x4> bonesTransforms);
+    void initAnimation(QString fileName, QString name);
     const unsigned int FPS = 60;
 
 private:
@@ -103,6 +106,8 @@ private:
 
     QString animationState;
     bool jump;
+
+    QSound* sambaSound;
 
     QMatrix4x4 bonesTransformations[30];
     QVector2D lightBiais;

@@ -69,6 +69,7 @@ MainWidget::MainWidget(QWidget *parent) :
     texture(0),
     angularSpeed(0),
     frameNumber(0)
+
 {
 }
 
@@ -104,16 +105,16 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
             if(lightBiais.y()>=0.1){
                 lightBiais.setY(lightBiais.y()-0.05);
             }
-
                 break;
             case Qt::Key_F :
                 cam.changeFocusModel();
                 break;
             case Qt::Key_W :
-            if(animationState == QString("idle")){
-                animationState = QString("walk");
-            }else if(animationState == QString("walk")){
+            sambaSound->stop();
+            if(animationState == QString("walk")){
                 animationState = QString("idle");
+            }else{
+                animationState = QString("walk");
             }
                 break;
             case Qt::Key_Space :
@@ -122,31 +123,14 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
                     frameNumber=0;
                 }
                 break;
-            case Qt::Key_Left :
-                //Démarrer annimation gauche
-                break;
-            case Qt::Key_Right:
-                //Démarrer annimation droite
-
-                break;
-            case Qt::Key_Down:
-                //Démarrer annimation bas
-                cam.dezoom(1.2);
-                break;
-            case Qt::Key_Up:
-                //Démarrer annimation saut
-                cam.zoom(1.2);
-                break;
-
-            case Qt::Key_Z:
-                //Bouger cam en avant
-                cam.avancer();
-                break;
-            case Qt::Key_S:
-                //Bouger cam en arriere
-                cam.reculer();
-                break;
-
+            case Qt::Key_D :
+            sambaSound->stop();
+            if(animationState == QString("samba")){
+                animationState = QString("idle");
+            }else{
+                animationState = QString("samba");
+                sambaSound->play();
+            }
                 break;
             default:
                 break;
@@ -197,8 +181,7 @@ void MainWidget::timerEvent(QTimerEvent *)
             jump = false;
         }
     }else{
-
-            if(animationState == QString("idle") || !model.getAnimations()[QString("jump")]->HasAnimations()){
+            if(!model.getAnimations()[animationState]->HasAnimations()){
               animDuration = 1;
             }else{
               animDuration = model.getAnimations()[animationState]->mAnimations[0]->mDuration;
@@ -253,50 +236,22 @@ void MainWidget::initializeGL()
 
     }
 
+
+
+    //load idle animation
+    initAnimation(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_idle."+fileNameInfo.suffix(), QString("idle"));
+
+
     //load walk animation
-    bonesTransformationsMap.insert(QString("walk"), QVector<QVector<QMatrix4x4>>());
-    bonesTransformationsList = &bonesTransformationsMap[QString("walk")];
-
-    if(model.loadAnimationFromFile(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_walk."+fileNameInfo.suffix(), QString("walk"))){
-        if(model.getAnimations()[QString("walk")]->HasAnimations()){
-            animDuration = model.getAnimations()[QString("walk")]->mAnimations[0]->mDuration;
-        }else{
-            animDuration = 1;
-        }
-        for(int j = 0; j<(int)(FPS*animDuration); ++j){
-            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, model.getAnimations()[QString("walk")]->mAnimations[0]));
-        }
-
-    }else{
-        animDuration = 1;
-        for(unsigned int j = 0; j<FPS; ++j){
-            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, new aiAnimation()));
-
-        }
-    }
+    initAnimation(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_walk."+fileNameInfo.suffix(), QString("walk"));
 
 
     //load jump animation
-    bonesTransformationsMap.insert(QString("jump"), QVector<QVector<QMatrix4x4>>());
-    bonesTransformationsList = &bonesTransformationsMap[QString("jump")];
-    if(model.loadAnimationFromFile(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_jump."+fileNameInfo.suffix(), QString("jump"))){
-        if(model.getAnimations()[QString("jump")]->HasAnimations()){
-            animDuration = model.getAnimations()[QString("jump")]->mAnimations[0]->mDuration;
-        }else{
-            animDuration = 1;
-        }
-        for(int j = 0; j<(int)(FPS*animDuration); ++j){
-            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, model.getAnimations()[QString("jump")]->mAnimations[0]));
-        }
+    initAnimation(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_jump."+fileNameInfo.suffix(), QString("jump"));
 
-    }else{
-        animDuration = 1;
-        for(unsigned int j = 0; j<FPS; ++j){
-            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, new aiAnimation()));
-
-        }
-    }
-
+    //load samba animation
+    initAnimation(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_samba."+fileNameInfo.suffix(), QString("samba"));
+    sambaSound = new QSound(fileNameInfo.absolutePath()+"/Samba.wav");
 
 
     animationState = QString("idle");
@@ -314,6 +269,36 @@ void MainWidget::initializeGL()
 
 }
 
+/**
+ * @brief MainWidget::initAnimation
+ *
+ * Load and initialize an animation.
+ *
+ * @param fileName
+ * @param name
+ */
+void MainWidget::initAnimation(QString fileName, QString name){
+    double animDuration = 1;
+    bonesTransformationsMap.insert(name, QVector<QVector<QMatrix4x4>>());
+    QVector<QVector<QMatrix4x4>>*bonesTransformationsList = &bonesTransformationsMap[name];
+    if(model.loadAnimationFromFile(fileName, name)){
+        if(model.getAnimations()[name]->HasAnimations()){
+            animDuration = model.getAnimations()[name]->mAnimations[0]->mDuration;
+        }else{
+            animDuration = 1;
+        }
+        for(int j = 0; j<(int)(FPS*animDuration); ++j){
+            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, model.getAnimations()[name]->mAnimations[0]));
+        }
+
+    }else{
+        animDuration = 1;
+        for(unsigned int j = 0; j<FPS; ++j){
+            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, new aiAnimation()));
+
+        }
+    }
+}
 
 //! [3]
 void MainWidget::initShaders()
