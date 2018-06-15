@@ -185,7 +185,12 @@ void MainWidget::timerEvent(QTimerEvent *)
 
     double animDuration;
     if(jump){
-        animDuration = model.getAnimations()[QString("jump")]->mAnimations[0]->mDuration;
+        if(model.getAnimations()[QString("jump")]->HasAnimations()){
+            animDuration = model.getAnimations()[QString("jump")]->mAnimations[0]->mDuration;
+        }else{
+            animDuration = 1;
+        }
+
         initBonesTransforms(bonesTransformationsMap[QString("jump")].at(frameNumber%((int)(FPS*animDuration))));
         ++frameNumber;
         if(frameNumber%((int)(FPS*animDuration))==0){
@@ -193,7 +198,7 @@ void MainWidget::timerEvent(QTimerEvent *)
         }
     }else{
 
-            if(animationState == QString("idle")){
+            if(animationState == QString("idle") || !model.getAnimations()[QString("jump")]->HasAnimations()){
               animDuration = 1;
             }else{
               animDuration = model.getAnimations()[animationState]->mAnimations[0]->mDuration;
@@ -253,9 +258,12 @@ void MainWidget::initializeGL()
     bonesTransformationsList = &bonesTransformationsMap[QString("walk")];
 
     if(model.loadAnimationFromFile(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_walk."+fileNameInfo.suffix(), QString("walk"))){
-
-        animDuration = model.getAnimations()[QString("walk")]->mAnimations[0]->mDuration;
-        for(int j = 0; j<(int)(FPS*model.getAnimations()[QString("walk")]->mAnimations[0]->mDuration); ++j){
+        if(model.getAnimations()[QString("walk")]->HasAnimations()){
+            animDuration = model.getAnimations()[QString("walk")]->mAnimations[0]->mDuration;
+        }else{
+            animDuration = 1;
+        }
+        for(int j = 0; j<(int)(FPS*animDuration); ++j){
             bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, model.getAnimations()[QString("walk")]->mAnimations[0]));
         }
 
@@ -272,8 +280,12 @@ void MainWidget::initializeGL()
     bonesTransformationsMap.insert(QString("jump"), QVector<QVector<QMatrix4x4>>());
     bonesTransformationsList = &bonesTransformationsMap[QString("jump")];
     if(model.loadAnimationFromFile(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_jump."+fileNameInfo.suffix(), QString("jump"))){
-        animDuration = model.getAnimations()[QString("jump")]->mAnimations[0]->mDuration;
-        for(int j = 0; j<(int)(FPS*model.getAnimations()[QString("jump")]->mAnimations[0]->mDuration); ++j){
+        if(model.getAnimations()[QString("jump")]->HasAnimations()){
+            animDuration = model.getAnimations()[QString("jump")]->mAnimations[0]->mDuration;
+        }else{
+            animDuration = 1;
+        }
+        for(int j = 0; j<(int)(FPS*animDuration); ++j){
             bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, model.getAnimations()[QString("jump")]->mAnimations[0]));
         }
 
