@@ -80,6 +80,7 @@ bool AnimatedModel::loadAnimationFromFile(QString fileName, QString animationNam
     if( !tmpScene)
     {
        std::cout << importer.GetErrorString() << std::endl;
+       animations.insert(animationName, new aiScene());
        return false;
     }else{
        animations.insert(animationName, importer.GetOrphanedScene());
