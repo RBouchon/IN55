@@ -1,6 +1,17 @@
 #include "bone.h"
 #include <iostream>
 
+
+/**
+ * @brief Bone::Bone
+ *
+ * Constructor for a Bone.
+ *
+ * @param boneName
+ * @param bonesChildsName
+ * @param transformMatrix
+ * @param offsetMatrix
+ */
 Bone::Bone(QString boneName, QVector<QString> bonesChildsName, QMatrix4x4 transformMatrix, QMatrix4x4 offsetMatrix)
     : name(boneName), bonesChilds(bonesChildsName), transform(transformMatrix), offset(offsetMatrix)
 {
@@ -26,25 +37,4 @@ QMatrix4x4 Bone::getTransform(){
 
 QVector<QString> Bone::getBonesChilds(){
     return bonesChilds;
-}
-
-void Bone::generateChildsIndex(QVector<Bone*> bonesList){
-
-
-
-    for(int i = 0; i< bonesChilds.size(); ++i){
-        for(int j = 0; j <bonesList.size(); ++j){
-
-            if(bonesChilds[i] == bonesList[j]->getName()){
-                childsIndex.append(j);
-            }
-        }
-
-    }
-
-
-}
-
-QVector<unsigned int> Bone::getChildsIndex(){
-    return childsIndex;
 }

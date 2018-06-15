@@ -1,6 +1,5 @@
 #include "animatedmodel.h"
 #include "iostream"
-#include "math.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -22,6 +21,14 @@ AnimatedModel:: AnimatedModel(){
 
 }
 
+
+/**
+ * @brief AnimatedModel::AnimatedModel
+ *
+ * Constructor for an AnimatedModel. Load a model from the fileName.
+ *
+ * @param fileName
+ */
 AnimatedModel:: AnimatedModel(QString fileName)
 {
 
@@ -51,7 +58,15 @@ AnimatedModel::~AnimatedModel(){
 
 }
 
-
+/**
+ * @brief AnimatedModel::loadAnimationFromFile
+ *
+ * Load the first animation of a file, and set it in the QMap animations with its name as a key.
+ *
+ * @param fileName
+ * @param animationName
+ * @return
+ */
 bool AnimatedModel::loadAnimationFromFile(QString fileName, QString animationName){
     Assimp::Importer importer;
 
@@ -75,7 +90,15 @@ bool AnimatedModel::loadAnimationFromFile(QString fileName, QString animationNam
 }
 
 
-//Initialize model from file
+/**
+ * @brief AnimatedModel::loadModelFromFile
+ *
+ * Load and initialize the mesh, bones and texture from a file.
+ *
+ * @attention More than one mesh and one texture is not supported. Only the first mesh/texture will be loaded.
+ *
+ * @param fileName
+ */
 void AnimatedModel::loadModelFromFile(QString fileName){
 
 
@@ -170,21 +193,13 @@ void AnimatedModel::loadModelFromFile(QString fileName){
 
     }
 
-
-
-
-    // Generate childIndex list for each bones
-    for(int i = 0; i <bonesList.size(); ++i){
-        bonesList[i]->generateChildsIndex(bonesList);
-    }
-
     vertices = verticesList;
     indices = indicesList;
     bones = bonesList;
     textureFileName = textureName;
 
 
-
+    // Set the global transform as the rootNode transformation
     aiMatrix4x4 rootTransform = scene->mRootNode->mTransformation;
     globalTransform = QMatrix4x4(rootTransform.a1, rootTransform.a2, rootTransform.a3, rootTransform.a4,
                                     rootTransform.b1, rootTransform.b2, rootTransform.b3, rootTransform.b4,
@@ -195,7 +210,15 @@ void AnimatedModel::loadModelFromFile(QString fileName){
 
 }
 
-
+/**
+ * @brief AnimatedModel::getTransformationsAtTime
+ *
+ * Get the list of bones transformations matrix for a given time.
+ *
+ * @param time
+ * @param animation
+ * @return QVector of QMatrix4x4
+ */
 QVector<QMatrix4x4> AnimatedModel::getTransformationsAtTime(double time, aiAnimation* animation){
 
 
@@ -211,6 +234,19 @@ QVector<QMatrix4x4> AnimatedModel::getTransformationsAtTime(double time, aiAnima
     return transformationList;
 }
 
+
+
+/**
+ * @brief AnimatedModel::calculateBonesTransformations
+ *
+ * Calculate recursively the bones transformation from a node and its childrens.
+ *
+ * @param time
+ * @param animation
+ * @param transformationList
+ * @param parentTransformation
+ * @param node
+ */
 void AnimatedModel::calculateBonesTransformations(double time, aiAnimation* animation, QVector<QMatrix4x4> &transformationList, QMatrix4x4 parentTransformation, aiNode* node){
 
 
@@ -257,7 +293,15 @@ void AnimatedModel::calculateBonesTransformations(double time, aiAnimation* anim
 
 }
 
-
+/**
+ * @brief AnimatedModel::interpolateTranslation
+ *
+ * Get the translation transformation Matrix (interpolated from KeyFrames) for a given time.
+ *
+ * @param time
+ * @param animationNode
+ * @return Translation 4x4Matrix
+ */
 QMatrix4x4 AnimatedModel::interpolateTranslation(double time, aiNodeAnim* animationNode){
     QMatrix4x4 identity;
 
@@ -304,6 +348,15 @@ QMatrix4x4 AnimatedModel::interpolateTranslation(double time, aiNodeAnim* animat
 
 }
 
+/**
+ * @brief AnimatedModel::interpolateRotation
+ *
+ * Get the rotation transformation Matrix (interpolated from KeyFrames) for a given time.
+ *
+ * @param time
+ * @param animationNode
+ * @return Rotation 4x4Matrix
+ */
 QMatrix4x4 AnimatedModel::interpolateRotation(double time, aiNodeAnim* animationNode){
     QMatrix4x4 identity;
     aiMatrix3x3 rotationMatrix;
@@ -346,8 +399,6 @@ QMatrix4x4 AnimatedModel::interpolateRotation(double time, aiNodeAnim* animation
     aiQuaternion::Interpolate(interpolatedRotation, start, end, factor);
     interpolatedRotation.Normalize();
 
-    rotationMatrix = interpolatedRotation.GetMatrix();
-
     QQuaternion q = QQuaternion(interpolatedRotation.w,interpolatedRotation.x, interpolatedRotation.y, interpolatedRotation.z);
     QMatrix4x4 R;
 
@@ -358,6 +409,15 @@ QMatrix4x4 AnimatedModel::interpolateRotation(double time, aiNodeAnim* animation
 
 }
 
+/**
+ * @brief AnimatedModel::interpolateScaling
+ *
+ * Get the scaling transformation Matrix (interpolated from KeyFrames) for a given time.
+ *
+ * @param time
+ * @param animationNode
+ * @return Scaling 4x4Matrix
+ */
 QMatrix4x4 AnimatedModel::interpolateScaling(double time, aiNodeAnim* animationNode){
     QMatrix4x4 identity;
 

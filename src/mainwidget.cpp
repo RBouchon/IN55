@@ -61,8 +61,7 @@
 
 #include <QFileDialog>
 #include <QMouseEvent>
-#include <math.h>
-#include <chrono>
+
 
 MainWidget::MainWidget(QWidget *parent) :
     QOpenGLWidget(parent),
@@ -104,10 +103,10 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
             }
                 break;
             case Qt::Key_Space :
-            if(!jump){
-                jump = true;
-                frameNumber=0;
-            }
+                if(!jump){
+                    jump = true;
+                    frameNumber=0;
+                }
                 break;
             case Qt::Key_Left :
                 //Démarrer annimation gauche
@@ -177,7 +176,7 @@ void MainWidget::timerEvent(QTimerEvent *)
             jump = false;
         }
     }else{
-        initBonesTransforms(bonesTransformationsMap[animationState].at(frameNumber%(FPS)));
+        initBonesTransforms(bonesTransformationsMap[animationState].at(frameNumber%FPS));
         ++frameNumber;
     }
 

@@ -55,7 +55,7 @@
 #include <QVector3D>
 #include <QVector>
 #include <iostream>
-#include <cmath>
+
 
 struct VertexData
 {
@@ -123,9 +123,6 @@ void GeometryEngine::initGeometry()
     nbrIndices = model.getIndices().size();
     QVector<unsigned int> indicesList = model.getIndices();
     unsigned int *indices = &indicesList[0];
-
-
-
 
 
 
