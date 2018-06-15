@@ -169,14 +169,23 @@ void MainWidget::mouseMoveEvent(QMouseEvent *event){
 void MainWidget::timerEvent(QTimerEvent *)
 {
 
+    double animDuration;
     if(jump){
-        initBonesTransforms(bonesTransformationsMap[QString("jump")].at(frameNumber%FPS));
+        animDuration = model.getAnimations()[QString("jump")]->mAnimations[0]->mDuration;
+        initBonesTransforms(bonesTransformationsMap[QString("jump")].at(frameNumber%((int)(FPS*animDuration))));
         ++frameNumber;
-        if(frameNumber%FPS==0){
+        if(frameNumber%((int)(FPS*animDuration))==0){
             jump = false;
         }
     }else{
-        initBonesTransforms(bonesTransformationsMap[animationState].at(frameNumber%FPS));
+
+            if(animationState == QString("idle")){
+              animDuration = 1;
+            }else{
+              animDuration = model.getAnimations()[animationState]->mAnimations[0]->mDuration;
+            }
+
+        initBonesTransforms(bonesTransformationsMap[animationState].at(frameNumber%((int)(FPS*animDuration))));
         ++frameNumber;
     }
 
@@ -214,12 +223,14 @@ void MainWidget::initializeGL()
 
     initTextures(model.getTextureFileName());
 
+
+    double animDuration = 1;
     QVector<QVector<QMatrix4x4>>* bonesTransformationsList;
     //load idle animation
     bonesTransformationsMap.insert(QString("idle"), QVector<QVector<QMatrix4x4>>());
     bonesTransformationsList = &bonesTransformationsMap[QString("idle")];
     for(unsigned int j = 0; j<FPS; ++j){
-        bonesTransformationsList->append(model.getTransformationsAtTime((1.0/FPS)*j, new aiAnimation()));
+        bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, new aiAnimation()));
 
     }
 
@@ -229,13 +240,15 @@ void MainWidget::initializeGL()
 
     if(model.loadAnimationFromFile(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_walk."+fileNameInfo.suffix(), QString("walk"))){
 
-        for(unsigned int j = 0; j<FPS; ++j){
-            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/FPS)*j, model.getAnimations()[QString("walk")]->mAnimations[0]));
+        animDuration = model.getAnimations()[QString("walk")]->mAnimations[0]->mDuration;
+        for(unsigned int j = 0; j<(int)(FPS*model.getAnimations()[QString("walk")]->mAnimations[0]->mDuration); ++j){
+            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, model.getAnimations()[QString("walk")]->mAnimations[0]));
         }
 
     }else{
+        animDuration = 1;
         for(unsigned int j = 0; j<FPS; ++j){
-            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/FPS)*j, new aiAnimation()));
+            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, new aiAnimation()));
 
         }
     }
@@ -245,14 +258,15 @@ void MainWidget::initializeGL()
     bonesTransformationsMap.insert(QString("jump"), QVector<QVector<QMatrix4x4>>());
     bonesTransformationsList = &bonesTransformationsMap[QString("jump")];
     if(model.loadAnimationFromFile(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_jump."+fileNameInfo.suffix(), QString("jump"))){
-
-        for(unsigned int j = 0; j<FPS; ++j){
-            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/FPS)*j, model.getAnimations()[QString("jump")]->mAnimations[0]));
+        animDuration = model.getAnimations()[QString("jump")]->mAnimations[0]->mDuration;
+        for(unsigned int j = 0; j<(int)(FPS*model.getAnimations()[QString("jump")]->mAnimations[0]->mDuration); ++j){
+            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, model.getAnimations()[QString("jump")]->mAnimations[0]));
         }
 
     }else{
+        animDuration = 1;
         for(unsigned int j = 0; j<FPS; ++j){
-            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/FPS)*j, new aiAnimation()));
+            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, new aiAnimation()));
 
         }
     }
