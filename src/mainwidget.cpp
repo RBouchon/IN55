@@ -92,6 +92,20 @@ void MainWidget::mousePressEvent(QMouseEvent *e)
 void MainWidget::keyPressEvent(QKeyEvent *event){
     switch ( event->key() )
         {
+            case Qt::Key_L :
+                light = !light;
+                break;
+            case Qt::Key_P :
+            if(lightBiais.y()<=0.95){
+                lightBiais.setY(lightBiais.y()+0.05);
+            }
+                break;
+            case Qt::Key_M :
+            if(lightBiais.y()>=0.1){
+                lightBiais.setY(lightBiais.y()-0.05);
+            }
+
+                break;
             case Qt::Key_F :
                 cam.changeFocusModel();
                 break;
@@ -241,7 +255,7 @@ void MainWidget::initializeGL()
     if(model.loadAnimationFromFile(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_walk."+fileNameInfo.suffix(), QString("walk"))){
 
         animDuration = model.getAnimations()[QString("walk")]->mAnimations[0]->mDuration;
-        for(unsigned int j = 0; j<(int)(FPS*model.getAnimations()[QString("walk")]->mAnimations[0]->mDuration); ++j){
+        for(int j = 0; j<(int)(FPS*model.getAnimations()[QString("walk")]->mAnimations[0]->mDuration); ++j){
             bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, model.getAnimations()[QString("walk")]->mAnimations[0]));
         }
 
@@ -259,7 +273,7 @@ void MainWidget::initializeGL()
     bonesTransformationsList = &bonesTransformationsMap[QString("jump")];
     if(model.loadAnimationFromFile(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_jump."+fileNameInfo.suffix(), QString("jump"))){
         animDuration = model.getAnimations()[QString("jump")]->mAnimations[0]->mDuration;
-        for(unsigned int j = 0; j<(int)(FPS*model.getAnimations()[QString("jump")]->mAnimations[0]->mDuration); ++j){
+        for(int j = 0; j<(int)(FPS*model.getAnimations()[QString("jump")]->mAnimations[0]->mDuration); ++j){
             bonesTransformationsList->append(model.getTransformationsAtTime((1.0/((int)(FPS*animDuration)))*j, model.getAnimations()[QString("jump")]->mAnimations[0]));
         }
 
@@ -275,6 +289,11 @@ void MainWidget::initializeGL()
 
     animationState = QString("idle");
     jump = false;
+
+    lightBiais = QVector2D(0.7, 0.6);
+    lightDirection = QVector3D(1,1,-1);
+    light = true;
+
     geometries = new GeometryEngine(model);
 
     // Use QBasicTimer because its faster than QTimer
@@ -367,6 +386,13 @@ void MainWidget::paintGL()
 
     program.setUniformValue("texture", 0);
 
+    if(light){
+        program.setUniformValue("lightBias", lightBiais.x(), lightBiais.y());
+    }else{
+        program.setUniformValue("lightBias", 0.0, 0.0);
+    }
+
+    program.setUniformValue("lightDirection", lightDirection.x(), lightDirection.y(), lightDirection.z());
     program.setUniformValueArray("boneTransformations", bonesTransformations, 30);
 //! [6]
 

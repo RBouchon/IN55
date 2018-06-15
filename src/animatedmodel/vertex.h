@@ -14,6 +14,7 @@ public:
     ~Vertex();
     QVector3D getPosition();
     QVector2D getTextureCoords();
+    QVector3D getNormal();
     QVector<Bone*>& getBones();
     QVector<float>& getBonesWeight();
 private:

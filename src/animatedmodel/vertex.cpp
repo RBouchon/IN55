@@ -31,6 +31,10 @@ QVector2D Vertex::getTextureCoords(){
     return textureCoords;
 }
 
+QVector3D Vertex::getNormal(){
+    return normal;
+}
+
 QVector<Bone*> &Vertex::getBones(){
     return bones;
 }

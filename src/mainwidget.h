@@ -105,6 +105,9 @@ private:
     bool jump;
 
     QMatrix4x4 bonesTransformations[30];
+    QVector2D lightBiais;
+    QVector3D lightDirection;
+    bool light;
 
     QVector2D mousePressPosition;
     QVector3D rotationAxis;

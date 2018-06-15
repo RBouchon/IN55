@@ -61,6 +61,7 @@ struct VertexData
 {
     QVector3D vertexPosition;
     QVector2D texCoord;
+    QVector3D normal;
     QVector4D bonesIndex;  // Index of the bones
     QVector4D weight;  // Weight of the bones
 };
@@ -115,7 +116,7 @@ void GeometryEngine::initGeometry()
         }
 
 
-        vertices[i] = {modelVertices[i]->getPosition(), modelVertices[i]->getTextureCoords(), bonesIndex, weight };
+        vertices[i] = {modelVertices[i]->getPosition(), modelVertices[i]->getTextureCoords(), modelVertices[i]->getNormal(), bonesIndex, weight };
 
     }
 
@@ -167,8 +168,17 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program)
     program->enableAttributeArray(texLocation);
     program->setAttributeBuffer(texLocation, GL_FLOAT, offset, 2, sizeof(VertexData));
 
-    // Offset for bonesIndex
+    // Offset for normal
     offset += sizeof(QVector2D);
+
+    // Tell OpenGL programmable pipeline how to locate vertex normal data
+    int vertexNormal = program->attributeLocation("normal");
+    program->enableAttributeArray(vertexNormal);
+    program->setAttributeBuffer(vertexNormal, GL_FLOAT, offset, 3, sizeof(VertexData));
+
+    // Offset for bonesIndex
+    offset += sizeof(QVector3D);
+
 
     // Tell OpenGL programmable pipeline how to locate bonesIndex data
     int bonesInd = program->attributeLocation("bonesIndex");
