@@ -17,9 +17,7 @@
 
 #include "vertex.h"
 #include "bone.h"
-#include "bonetransform.h"
-#include "keyframe.h"
-#include "animation.h"
+
 
 
 
@@ -156,93 +154,6 @@ void AnimatedModel::loadModelFromFile(QString fileName){
 
 
 
-    //Get Animations list
-    QVector<Animation*> animationsList;
-
-    for(unsigned int i = 0; i<scene->mNumAnimations; ++i){ // For each animation
-
-        QSet<double> timeStampSet; //Set of timeStamp for this animation
-
-        // For each bones transformation of the animation, update the timestamp set
-        for(unsigned int j = 0; j <scene->mAnimations[i]->mNumChannels; ++j){
-
-            //Update the timeStamp set
-
-            for(unsigned int k = 0; k <scene->mAnimations[i]->mChannels[j]->mNumPositionKeys; ++k){
-                timeStampSet.insert(scene->mAnimations[i]->mChannels[j]->mPositionKeys[k].mTime);
-            }
-            for(unsigned int k = 0; k <scene->mAnimations[i]->mChannels[j]->mNumRotationKeys; ++k){
-                timeStampSet.insert(scene->mAnimations[i]->mChannels[j]->mRotationKeys[k].mTime);
-            }
-
-            for(unsigned int k = 0; k <scene->mAnimations[i]->mChannels[j]->mNumScalingKeys; ++k){
-                timeStampSet.insert(scene->mAnimations[i]->mChannels[j]->mScalingKeys[k].mTime);
-            }
-
-        }
-
-        QVector<KeyFrame*> keyFramesList;
-        QList<double> timeStampList = timeStampSet.toList();
-        //Get each keyFrame
-        for(int j = 0; j<timeStampList.size(); ++j){
-
-            QVector<BoneTransform*> bonesTransforms;
-
-            //For each bones
-            for(unsigned int k = 0; k<scene->mAnimations[i]->mNumChannels; ++k){
-                Bone* transformedBone = NULL;
-                for(int m = 0;m<bonesList.size(); ++m){ // Get the bone from the list of bones
-                    if(bonesList[m]->getName() == QString(scene->mAnimations[i]->mChannels[k]->mNodeName.data)){
-                        transformedBone = bonesList[m];
-                    }
-                }
-
-                if(transformedBone != NULL){
-                    BoneTransform* bt = new BoneTransform(transformedBone);
-
-                    for(unsigned int m = 0; m <scene->mAnimations[i]->mChannels[k]->mNumPositionKeys; ++m){
-                        if(scene->mAnimations[i]->mChannels[k]->mPositionKeys[m].mTime == timeStampList[j]){
-                            bt->position = QVector3D(scene->mAnimations[i]->mChannels[k]->mPositionKeys[m].mValue.x,
-                                                    scene->mAnimations[i]->mChannels[k]->mPositionKeys[m].mValue.y,
-                                                    scene->mAnimations[i]->mChannels[k]->mPositionKeys[m].mValue.z);
-                        }
-                    }
-
-                    for(unsigned int m = 0; m <scene->mAnimations[i]->mChannels[k]->mNumRotationKeys; ++m){
-                        if(scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mTime == timeStampList[j]){
-                            bt->rotation = QQuaternion(scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.x,
-                                                       scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.y,
-                                                       scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.z,
-                                                       scene->mAnimations[i]->mChannels[k]->mRotationKeys[m].mValue.w);
-                        }
-                    }
-
-                    for(unsigned int m = 0; m <scene->mAnimations[i]->mChannels[k]->mNumScalingKeys; ++m){
-                        if(scene->mAnimations[i]->mChannels[k]->mScalingKeys[m].mTime == timeStampList[j]){
-                            bt->scaling = QVector3D(scene->mAnimations[i]->mChannels[k]->mScalingKeys[m].mValue.x,
-                                                    scene->mAnimations[i]->mChannels[k]->mScalingKeys[m].mValue.y,
-                                                    scene->mAnimations[i]->mChannels[k]->mScalingKeys[m].mValue.z);
-                        }
-                    }
-                    bonesTransforms.append(bt);
-
-                }
-            }
-
-            keyFramesList.append(new KeyFrame(timeStampList[j], bonesTransforms));
-
-        }
-        std::sort(keyFramesList.begin(), keyFramesList.end(), []( KeyFrame* a,  KeyFrame* b){
-            return a->getTimeStamp()<b->getTimeStamp();
-        });
-
-        animationsList.append(new Animation(QString (scene->mAnimations[i]->mName.data), scene->mAnimations[i]->mDuration, scene->mAnimations[i]->mTicksPerSecond, keyFramesList));
-
-    }
-
-
-
-
 
     // Generate childIndex list for each bones
     for(int i = 0; i <bonesList.size(); ++i){
@@ -253,7 +164,7 @@ void AnimatedModel::loadModelFromFile(QString fileName){
     indices = indicesList;
     bones = bonesList;
     textureFileName = textureName;
-    animations = animationsList;
+
 
 
     aiMatrix4x4 rootTransform = scene->mRootNode->mTransformation;
@@ -312,7 +223,7 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
     QMatrix4x4 transformation = parentTransformation*nodeTransform;
 
-    for(unsigned int i = 0; i<bones.size(); ++i){
+    for(int i = 0; i<bones.size(); ++i){
         if(bones[i]->getName() == QString(node->mName.data)){
             transformationList[i] = globalTransform.inverted()*transformation*bones[i]->getOffset();
 
@@ -489,6 +400,6 @@ QVector<Bone*> AnimatedModel::getBones(){
     return bones;
 }
 
-QVector<Animation*> AnimatedModel::getAnimations(){
+QMap<QString, aiAnimation> AnimatedModel::getAnimations(){
     return animations;
 }

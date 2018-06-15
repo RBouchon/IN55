@@ -4,10 +4,11 @@
 #include <QVector>
 #include <QString>
 #include <QMatrix4x4>
+#include <QMap>
 #include "bone.h"
 #include <assimp/scene.h>
 #include "vertex.h"
-#include "animation.h"
+
 
 class AnimatedModel
 {
@@ -19,14 +20,15 @@ public:
     QVector<unsigned int> getIndices();
     QString getTextureFileName();
     QVector<Bone*> getBones();
-    QVector<Animation*> getAnimations();
     QVector<QMatrix4x4> getTransformationsAtTime(double time);
+    QMap<QString,aiAnimation> getAnimations();
 
 
 private:
     const aiScene* scene;
 
     void loadModelFromFile(QString fileName);
+    void loadAnimationFromFile(QString fileName, QString animationName);
     void calculateBonesTransformations(double time, QVector<QMatrix4x4> &transformationList, QMatrix4x4 parentTransformation, aiNode* node);
     QMatrix4x4 interpolateTranslation(double time, aiNodeAnim* animationNode);
     QMatrix4x4 interpolateRotation(double time, aiNodeAnim* animationNode);
@@ -35,7 +37,7 @@ private:
     QVector<Vertex*> vertices;
     QVector<unsigned int> indices;
     QVector<Bone*> bones;
-    QVector<Animation*> animations;
+    QMap<QString,aiAnimation> animations;
     QMatrix4x4 globalTransform;
 
 

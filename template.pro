@@ -8,10 +8,7 @@ SOURCES += \
     src/mainwidget.cpp \
     src/geometryengine.cpp \
     src/animatedmodel/animatedmodel.cpp \
-    src/animatedmodel/animation.cpp \
     src/animatedmodel/bone.cpp \
-    src/animatedmodel/bonetransform.cpp \
-    src/animatedmodel/keyframe.cpp \
     src/animatedmodel/vertex.cpp \
     src/camera.cpp
 
@@ -19,10 +16,7 @@ HEADERS += \
     src/mainwidget.h \
     src/geometryengine.h \
     src/animatedmodel/animatedmodel.h \
-    src/animatedmodel/animation.h \
     src/animatedmodel/bone.h \
-    src/animatedmodel/bonetransform.h \
-    src/animatedmodel/keyframe.h \
     src/animatedmodel/vertex.h \
     src/camera.h
 
