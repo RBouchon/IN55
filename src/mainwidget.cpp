@@ -106,9 +106,7 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
                 lightBiais.setY(lightBiais.y()-0.05);
             }
                 break;
-            case Qt::Key_F :
-                cam.changeFocusModel();
-                break;
+
             case Qt::Key_W :
             sambaSound->stop();
             if(animationState == QString("walk")){
@@ -395,6 +393,6 @@ void MainWidget::paintGL()
 
 
 
-    // Draw cube geometry
+
     geometries->drawGeometry(&program);
 }
