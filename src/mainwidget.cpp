@@ -250,6 +250,7 @@ void MainWidget::initializeGL()
     //load samba animation
     initAnimation(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_samba."+fileNameInfo.suffix(), QString("samba"));
     sambaSound = new QSound(fileNameInfo.absolutePath()+"/Samba.wav");
+    sambaSound->setLoops(-1);
 
 
     animationState = QString("idle");

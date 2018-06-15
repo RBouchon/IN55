@@ -12,6 +12,7 @@ out vec4 fragColor;
 
 void main()
 {
+
     if(lightBias.x <= 0.01 && lightBias.y <= 0.01){
         fragColor = texture2D(tex, texCoord0);
     }else{
