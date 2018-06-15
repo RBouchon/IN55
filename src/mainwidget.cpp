@@ -57,7 +57,7 @@
 #include <QMatrix4x4>
 #include <QString>
 #include <QOpenGLTexture>
-
+#include <QFileInfo>
 
 #include <QFileDialog>
 #include <QMouseEvent>
@@ -95,6 +95,19 @@ void MainWidget::keyPressEvent(QKeyEvent *event){
         {
             case Qt::Key_F :
                 cam.changeFocusModel();
+                break;
+            case Qt::Key_W :
+            if(animationState == QString("idle")){
+                animationState = QString("walk");
+            }else if(animationState == QString("walk")){
+                animationState = QString("idle");
+            }
+                break;
+            case Qt::Key_Space :
+            if(!jump){
+                jump = true;
+                frameNumber=0;
+            }
                 break;
             case Qt::Key_Left :
                 //Démarrer annimation gauche
@@ -157,9 +170,18 @@ void MainWidget::mouseMoveEvent(QMouseEvent *event){
 void MainWidget::timerEvent(QTimerEvent *)
 {
 
+    if(jump){
+        initBonesTransforms(bonesTransformationsMap[QString("jump")].at(frameNumber%FPS));
+        ++frameNumber;
+        if(frameNumber%FPS==0){
+            jump = false;
+        }
+    }else{
+        initBonesTransforms(bonesTransformationsMap[animationState].at(frameNumber%(FPS)));
+        ++frameNumber;
+    }
 
-    initBonesTransforms(bonesTransformationsList.at(frameNumber%FPS));
-    ++frameNumber;
+
     update();
 
 
@@ -188,16 +210,58 @@ void MainWidget::initializeGL()
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open file dae"), "./", tr("dae Files (*.dae)"));
 
+    QFileInfo fileNameInfo = QFileInfo(fileName);
     model = AnimatedModel(fileName);
 
     initTextures(model.getTextureFileName());
 
+    QVector<QVector<QMatrix4x4>>* bonesTransformationsList;
+    //load idle animation
+    bonesTransformationsMap.insert(QString("idle"), QVector<QVector<QMatrix4x4>>());
+    bonesTransformationsList = &bonesTransformationsMap[QString("idle")];
+    for(unsigned int j = 0; j<FPS; ++j){
+        bonesTransformationsList->append(model.getTransformationsAtTime((1.0/FPS)*j, new aiAnimation()));
 
-    for(unsigned int i = 0; i<FPS; ++i){
-        bonesTransformationsList.append(model.getTransformationsAtTime((1.0/FPS)*i));
     }
 
-    //initBonesTransforms(bonesTransformationsList.at(0));
+    //load walk animation
+    bonesTransformationsMap.insert(QString("walk"), QVector<QVector<QMatrix4x4>>());
+    bonesTransformationsList = &bonesTransformationsMap[QString("walk")];
+
+    if(model.loadAnimationFromFile(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_walk."+fileNameInfo.suffix(), QString("walk"))){
+
+        for(unsigned int j = 0; j<FPS; ++j){
+            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/FPS)*j, model.getAnimations()[QString("walk")]->mAnimations[0]));
+        }
+
+    }else{
+        for(unsigned int j = 0; j<FPS; ++j){
+            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/FPS)*j, new aiAnimation()));
+
+        }
+    }
+
+
+    //load jump animation
+    bonesTransformationsMap.insert(QString("jump"), QVector<QVector<QMatrix4x4>>());
+    bonesTransformationsList = &bonesTransformationsMap[QString("jump")];
+    if(model.loadAnimationFromFile(fileNameInfo.absolutePath()+"/"+fileNameInfo.baseName() +"_jump."+fileNameInfo.suffix(), QString("jump"))){
+
+        for(unsigned int j = 0; j<FPS; ++j){
+            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/FPS)*j, model.getAnimations()[QString("jump")]->mAnimations[0]));
+        }
+
+    }else{
+        for(unsigned int j = 0; j<FPS; ++j){
+            bonesTransformationsList->append(model.getTransformationsAtTime((1.0/FPS)*j, new aiAnimation()));
+
+        }
+    }
+
+
+
+    animationState = QString("idle");
+    jump = false;
     geometries = new GeometryEngine(model);
 
     // Use QBasicTimer because its faster than QTimer
@@ -205,6 +269,7 @@ void MainWidget::initializeGL()
 
 
 }
+
 
 //! [3]
 void MainWidget::initShaders()

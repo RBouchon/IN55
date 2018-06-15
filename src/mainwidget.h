@@ -59,6 +59,8 @@
 #include <QMatrix4x4>
 #include <QQuaternion>
 #include <QVector>
+#include <QMap>
+#include <QString>
 #include <QVector2D>
 #include <QBasicTimer>
 #include <QOpenGLShaderProgram>
@@ -99,6 +101,8 @@ private:
     QMatrix4x4 projection;
     QMatrix4x4 view;
 
+    QString animationState;
+    bool jump;
 
     QMatrix4x4 bonesTransformations[30];
 
@@ -108,7 +112,7 @@ private:
     QQuaternion rotation;
     unsigned int frameNumber;
     AnimatedModel model;
-    QVector<QVector<QMatrix4x4>> bonesTransformationsList;
+    QMap<QString, QVector<QVector<QMatrix4x4>>> bonesTransformationsMap;
 };
 
 #endif // MAINWIDGET_H

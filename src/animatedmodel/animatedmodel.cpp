@@ -11,9 +11,6 @@
 #include <QString>
 #include <QOpenGLTexture>
 #include <QFileInfo>
-#include <QSet>
-#include <QList>
-#include <algorithm>
 
 #include "vertex.h"
 #include "bone.h"
@@ -29,9 +26,6 @@ AnimatedModel:: AnimatedModel(QString fileName)
 {
 
     Assimp::Importer importer;
-
-
-
 
     scene = importer.ReadFile(fileName.toStdString(),
     aiProcess_CalcTangentSpace |
@@ -53,6 +47,30 @@ AnimatedModel:: AnimatedModel(QString fileName)
 }
 
 AnimatedModel::~AnimatedModel(){
+
+
+}
+
+
+bool AnimatedModel::loadAnimationFromFile(QString fileName, QString animationName){
+    Assimp::Importer importer;
+
+    const aiScene* tmpScene = importer.ReadFile(fileName.toStdString(),
+    aiProcess_CalcTangentSpace |
+    aiProcess_Triangulate |
+    aiProcess_JoinIdenticalVertices |
+    aiProcess_SortByPType );
+
+
+    if( !tmpScene)
+    {
+       std::cout << importer.GetErrorString() << std::endl;
+       return false;
+    }else{
+       animations.insert(animationName, importer.GetOrphanedScene());
+       return true;
+    }
+
 
 }
 
@@ -178,22 +196,22 @@ void AnimatedModel::loadModelFromFile(QString fileName){
 }
 
 
-QVector<QMatrix4x4> AnimatedModel::getTransformationsAtTime(double time){
+QVector<QMatrix4x4> AnimatedModel::getTransformationsAtTime(double time, aiAnimation* animation){
 
 
     QVector<QMatrix4x4> transformationList;
     transformationList.resize(bones.size());
 
 
-    double animationTime = time*scene->mAnimations[0]->mDuration;
+    double animationTime = time*animation->mDuration;
 
-    calculateBonesTransformations(animationTime, transformationList, globalTransform, scene->mRootNode );
+    calculateBonesTransformations(animationTime, animation, transformationList, globalTransform, scene->mRootNode );
 
 
     return transformationList;
 }
 
-void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x4> &transformationList, QMatrix4x4 parentTransformation, aiNode* node){
+void AnimatedModel::calculateBonesTransformations(double time, aiAnimation* animation, QVector<QMatrix4x4> &transformationList, QMatrix4x4 parentTransformation, aiNode* node){
 
 
 
@@ -207,13 +225,13 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
 
 
-    for(unsigned int i = 0; i<scene->mAnimations[0]->mNumChannels; ++i){
-        if(node->mName == scene->mAnimations[0]->mChannels[i]->mNodeName){
+    for(unsigned int i = 0; i<animation->mNumChannels; ++i){
+        if(node->mName == animation->mChannels[i]->mNodeName){
 
 
-            QMatrix4x4 T = interpolateTranslation(time, scene->mAnimations[0]->mChannels[i]);
-            QMatrix4x4 R = interpolateRotation(time, scene->mAnimations[0]->mChannels[i]);
-            QMatrix4x4 S = interpolateScaling(time, scene->mAnimations[0]->mChannels[i]);
+            QMatrix4x4 T = interpolateTranslation(time, animation->mChannels[i]);
+            QMatrix4x4 R = interpolateRotation(time, animation->mChannels[i]);
+            QMatrix4x4 S = interpolateScaling(time, animation->mChannels[i]);
 
             nodeTransform =  T*R*S;
 
@@ -233,7 +251,7 @@ void AnimatedModel::calculateBonesTransformations(double time, QVector<QMatrix4x
 
     for (unsigned int i = 0 ; i < node->mNumChildren ; i++) {
 
-        calculateBonesTransformations(time, transformationList, transformation, node->mChildren[i]);
+        calculateBonesTransformations(time, animation, transformationList, transformation, node->mChildren[i]);
 
     }
 
@@ -400,6 +418,6 @@ QVector<Bone*> AnimatedModel::getBones(){
     return bones;
 }
 
-QMap<QString, aiAnimation> AnimatedModel::getAnimations(){
+QMap<QString, aiScene *> AnimatedModel::getAnimations(){
     return animations;
 }
